@@ -20,11 +20,12 @@ export function activate(extensionContext: ExtensionContext) {
 			commands.executeCommand('workbench.action.focusActiveEditorGroup');
 		}
 	});
+	const refresh = commands.registerCommand('snippets-view.tree.refresh', () => snippetsProvider.refresh());
 
 	const snippetsProvider = new SnippetProvider(path.join(extensionContext.logPath, '../../../..', 'User/snippets'));
 	const snippetsTree = window.registerTreeDataProvider(`${EXTENSION_NAME}.tree`, snippetsProvider);
 
-	extensionContext.subscriptions.push(insertSnippet, snippetsTree);
+	extensionContext.subscriptions.push(insertSnippet, snippetsTree, refresh);
 }
 
 export function deactivate() { }
