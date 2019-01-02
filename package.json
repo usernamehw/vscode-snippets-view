@@ -1,0 +1,80 @@
+{
+	"name": "snippets-view",
+	"displayName": "Snippets View",
+	"description": "View and insert configured inside vscode snippets",
+	"version": "0.0.1",
+	"publisher": "usernamehw",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.28.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/usernamehw/vscode-snippets-view"
+	},
+	"bugs": {
+		"url": "https://github.com/usernamehw/vscode-snippets-view/issues"
+	},
+	"keywords": [
+		"snippet",
+		"snippets",
+		"view",
+		"search",
+		"insert"
+	],
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onView:snippets-view.tree"
+	],
+	"main": "./out/extension",
+	"contributes": {
+		"configuration": {
+			"type": "object",
+			"title": "Snippets View",
+			"properties": {
+				"snippets-view.focusEditorAfterInsertion": {
+					"type": "boolean",
+					"default": true,
+					"description": "TODO: write description"
+				}
+			}
+		},
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "snippets-view",
+					"icon": "./img/activity_bar_icon.svg",
+					"title": "Snippets"
+				}
+			]
+		},
+		"views": {
+			"snippets-view": [
+				{
+					"id": "snippets-view.tree",
+					"name": "View"
+				}
+			]
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"postinstall": "node ./node_modules/vscode/bin/install",
+		"test": "npm run compile && node ./node_modules/vscode/bin/test"
+	},
+	"devDependencies": {
+		"@types/json5": "0.0.30",
+		"@types/mocha": "^2.2.42",
+		"@types/node": "^8.10.25",
+		"tslint": "^5.8.0",
+		"typescript": "^3.1.4",
+		"vscode": "^1.1.25"
+	},
+	"dependencies": {
+		"json5": "^2.1.0"
+	}
+}
