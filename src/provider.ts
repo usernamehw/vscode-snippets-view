@@ -96,10 +96,5 @@ export class Snippet extends TreeItem {
 		}
 	}
 
-	// iconPath = {
-	// 	light: path.join(__filename, '..', '..', 'img', 'light', 'snippet.svg'),
-	// 	dark: path.join(__filename, '..', '..', 'img', 'dark', 'snippet.svg')
-	// };
-
 	contextValue = 'snippet';
 }
