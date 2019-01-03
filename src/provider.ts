@@ -29,6 +29,10 @@ export class SnippetProvider implements TreeDataProvider<Snippet> {
 						throw err;
 					}
 
+					if (contents === '') {
+						return resolve([]);
+					}
+
 					let parsedSnippets: ISnippetFile;
 					try {
 						parsedSnippets = JSON5.parse(contents);
