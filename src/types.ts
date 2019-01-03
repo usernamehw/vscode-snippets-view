@@ -10,3 +10,7 @@ export interface ISnippetFile {
 export interface IConfig {
 	focusEditorAfterInsertion: boolean;
 }
+export enum SnippetFileExtensions {
+	json = '.json',
+	codeSnippets = '.code-snippets'
+}

@@ -17,14 +17,14 @@
 		"url": "https://github.com/usernamehw/vscode-snippets-view/issues"
 	},
 	"keywords": [
-		"snippet",
 		"snippets",
 		"view",
 		"search",
-		"insert"
+		"insert",
+		"multi-root ready"
 	],
 	"categories": [
-		"Other"
+		"Snippets"
 	],
 	"activationEvents": [
 		"onView:snippets-view.tree"

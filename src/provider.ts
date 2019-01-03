@@ -1,9 +1,9 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { EXTENSION_NAME } from './extension';
-import { window, TreeItemCollapsibleState, TreeDataProvider, EventEmitter, Event, TreeItem, Command } from 'vscode';
+import { window, TreeItemCollapsibleState, TreeDataProvider, EventEmitter, Event, TreeItem, Command, workspace } from 'vscode';
 import * as JSON5 from 'json5';
-import { ISnippetFile } from './types';
+import { ISnippetFile, SnippetFileExtensions } from './types';
 
 export class SnippetProvider implements TreeDataProvider<Snippet> {
 
@@ -21,12 +21,18 @@ export class SnippetProvider implements TreeDataProvider<Snippet> {
 		return element;
 	}
 
-	getChildren(element?: Snippet): Thenable<Snippet[]> {
+	getChildren(element?: Snippet): Promise<Snippet[]> {
 		if (element) {
-			return new Promise((res, rej) => {
-				fs.readFile(element.absolutePath!, 'utf8', (err, contents) => {
+			return new Promise((resolve, reject) => {
+				const absolutePath = element.absolutePath;
+				if (!absolutePath) {
+					return reject([]);
+				}
+
+				fs.readFile(absolutePath, 'utf8', (err, contents) => {
 					if (err) {
-						throw err;
+						window.showErrorMessage('Error reading file ' + absolutePath + '\n' + err.message);
+						return reject([]);
 					}
 
 					if (contents === '') {
@@ -38,43 +44,59 @@ export class SnippetProvider implements TreeDataProvider<Snippet> {
 						parsedSnippets = JSON5.parse(contents);
 					} catch (err) {
 						window.showErrorMessage(`JSON parsing of snippet file ${element.absolutePath} failed`);
-						return rej([]);
+						return reject([]);
 					}
 
-					const arr = [];
+					const snippets = [];
 					for (const key in parsedSnippets) {
 						const parsed = parsedSnippets[key];
-						arr.push(new Snippet(key, parsed.scope || '', TreeItemCollapsibleState.None, undefined, {
+						snippets.push(new Snippet(key, parsed.scope || '', TreeItemCollapsibleState.None, undefined, {
 							command: EXTENSION_NAME + '.insertSnippet',
 							title: 'Insert Snippet',
 							arguments: [parsed.body]
 						}));
 					}
-					return res(arr);
+					return resolve(snippets);
 				});
 			});
 		} else {
-			return new Promise((res, rej) => {
-				fs.readdir(this.SnippetsDirPath, (err, files) => {
-					if (err) {
-						throw err;
-					}
+			return new Promise(async (resolve, reject) => {
+				const workspaceFolders = workspace.workspaceFolders;
+				let projectLevelSnippets: Snippet[] = [];
+				if (workspaceFolders) {
+					// @ts-ignore
+					projectLevelSnippets = [].concat.apply([], await Promise.all(workspaceFolders.map(async (folder) => {
+						return this.getSnippetFilesFromDirectory(path.join(folder.uri.fsPath, '.vscode'), [SnippetFileExtensions.codeSnippets]);
+					})));
+				}
 
-					const arr: any = [];
-					files.forEach(file => {
-						const extname = path.extname(file);
-						const filename = path.parse(file).name;
-						const absolutePath = path.join(this.SnippetsDirPath, file);
-						if (extname === '.json') {
-							arr.push(new Snippet(filename, '', TreeItemCollapsibleState.Expanded, absolutePath));
-						} else if (extname === '.code-snippets') {
-							arr.push(new Snippet(filename, '', TreeItemCollapsibleState.Expanded, absolutePath));
-						}
-					});
-					return res(arr);
-				});
+				const globalLevelSnippets: Snippet[] = await this.getSnippetFilesFromDirectory(this.SnippetsDirPath, [SnippetFileExtensions.json, SnippetFileExtensions.codeSnippets]);
+
+				return resolve(projectLevelSnippets.concat(globalLevelSnippets));
 			});
 		}
+	}
+
+	private getSnippetFilesFromDirectory(absoluteDirPath: string, includeExtensions: Array<SnippetFileExtensions>): Promise<Snippet[]> {
+		return new Promise((resolve, reject) => {
+			fs.readdir(absoluteDirPath, (err, files) => {
+				if (err) {
+					window.showErrorMessage('Error reading directory ' + absoluteDirPath + '\n' + err.message);
+					return reject([]);
+				}
+
+				const snippets: Array<Snippet> = [];
+				files.forEach(file => {
+					const extname = path.extname(file);
+					const filename = path.parse(file).name;
+					const absolutePath = path.join(absoluteDirPath, file);
+					if (includeExtensions.indexOf(extname as SnippetFileExtensions) !== -1) {
+						snippets.push(new Snippet(filename, '', TreeItemCollapsibleState.Expanded, absolutePath));
+					}
+				});
+				return resolve(snippets);
+			});
+		});
 	}
 }
 
