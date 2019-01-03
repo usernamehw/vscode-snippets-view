@@ -13,11 +13,16 @@
 		"url": "https://github.com/usernamehw/vscode-snippets-view"
 	},
 	"icon": "img/icon.png",
+	"galleryBanner": {
+		"theme": "dark",
+		"color": "#333333"
+	},
 	"bugs": {
 		"url": "https://github.com/usernamehw/vscode-snippets-view/issues"
 	},
 	"keywords": [
 		"snippets",
+		"snippet",
 		"view",
 		"search",
 		"insert",
