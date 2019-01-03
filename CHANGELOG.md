@@ -1,3 +1,7 @@
+### 0.0.4 `03 Jan 2019`
+
+- ✨ Context Menu: Open the corresponding snippets file
+
 ### 0.0.3 `03 Jan 2019`
 
 - ✨ Include [project-level snippets](https://github.com/Microsoft/vscode/issues/8102)

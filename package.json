@@ -73,6 +73,11 @@
 					"light": "img/refresh-light.svg",
 					"dark": "img/refresh-dark.svg"
 				}
+			},
+			{
+				"command": "snippets-view.openSnippetFile",
+				"title": "Open Snippets File",
+				"category": "Snippets View"
 			}
 		],
 		"menus": {
@@ -81,6 +86,12 @@
 					"command": "snippets-view.tree.refresh",
 					"when": "view == snippets-view.tree",
 					"group": "navigation"
+				}
+			],
+			"view/item/context": [
+				{
+					"command": "snippets-view.openSnippetFile",
+					"when": "view == snippets-view.tree && viewItem == snippetFile"
 				}
 			]
 		}

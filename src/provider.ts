@@ -5,7 +5,7 @@ import { window, TreeItemCollapsibleState, TreeDataProvider, EventEmitter, Event
 import * as JSON5 from 'json5';
 import { ISnippetFile, SnippetFileExtensions } from './types';
 
-export class SnippetProvider implements TreeDataProvider<Snippet> {
+export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> {
 
 	private _onDidChangeTreeData: EventEmitter<Snippet | undefined> = new EventEmitter<Snippet | undefined>();
 	readonly onDidChangeTreeData: Event<Snippet | undefined> = this._onDidChangeTreeData.event;
@@ -17,11 +17,11 @@ export class SnippetProvider implements TreeDataProvider<Snippet> {
 		this._onDidChangeTreeData.fire();
 	}
 
-	getTreeItem(element: Snippet): TreeItem {
+	getTreeItem(element: Snippet | SnippetFile): TreeItem {
 		return element;
 	}
 
-	getChildren(element?: Snippet): Promise<Snippet[]> {
+	getChildren(element?: SnippetFile): Promise<Snippet[] | SnippetFile[]> {
 		if (element) {
 			return new Promise((resolve, reject) => {
 				const absolutePath = element.absolutePath;
@@ -47,10 +47,10 @@ export class SnippetProvider implements TreeDataProvider<Snippet> {
 						return reject([]);
 					}
 
-					const snippets = [];
+					const snippets: Snippet[] = [];
 					for (const key in parsedSnippets) {
 						const parsed = parsedSnippets[key];
-						snippets.push(new Snippet(key, parsed.scope || '', TreeItemCollapsibleState.None, undefined, {
+						snippets.push(new Snippet(key, parsed.scope, TreeItemCollapsibleState.None, {
 							command: EXTENSION_NAME + '.insertSnippet',
 							title: 'Insert Snippet',
 							arguments: [parsed.body]
@@ -62,7 +62,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet> {
 		} else {
 			return new Promise(async (resolve, reject) => {
 				const workspaceFolders = workspace.workspaceFolders;
-				let projectLevelSnippets: Snippet[] = [];
+				let projectLevelSnippets: SnippetFile[] = [];
 				if (workspaceFolders) {
 					// @ts-ignore
 					projectLevelSnippets = [].concat.apply([], await Promise.all(workspaceFolders.map(async (folder) => {
@@ -70,14 +70,14 @@ export class SnippetProvider implements TreeDataProvider<Snippet> {
 					})));
 				}
 
-				const globalLevelSnippets: Snippet[] = await this.getSnippetFilesFromDirectory(this.SnippetsDirPath, [SnippetFileExtensions.json, SnippetFileExtensions.codeSnippets]);
+				const globalLevelSnippets: SnippetFile[] = await this.getSnippetFilesFromDirectory(this.SnippetsDirPath, [SnippetFileExtensions.json, SnippetFileExtensions.codeSnippets]);
 
 				return resolve(projectLevelSnippets.concat(globalLevelSnippets));
 			});
 		}
 	}
 
-	private getSnippetFilesFromDirectory(absoluteDirPath: string, includeExtensions: Array<SnippetFileExtensions>): Promise<Snippet[]> {
+	private getSnippetFilesFromDirectory(absoluteDirPath: string, includeExtensions: Array<SnippetFileExtensions>): Promise<SnippetFile[]> {
 		return new Promise((resolve, reject) => {
 			fs.readdir(absoluteDirPath, (err, files) => {
 				if (err) {
@@ -85,13 +85,13 @@ export class SnippetProvider implements TreeDataProvider<Snippet> {
 					return reject([]);
 				}
 
-				const snippets: Array<Snippet> = [];
+				const snippets: SnippetFile[] = [];
 				files.forEach(file => {
 					const extname = path.extname(file);
 					const filename = path.parse(file).name;
 					const absolutePath = path.join(absoluteDirPath, file);
 					if (includeExtensions.indexOf(extname as SnippetFileExtensions) !== -1) {
-						snippets.push(new Snippet(filename, '', TreeItemCollapsibleState.Expanded, absolutePath));
+						snippets.push(new SnippetFile(filename, TreeItemCollapsibleState.Expanded, absolutePath));
 					}
 				});
 				return resolve(snippets);
@@ -100,20 +100,19 @@ export class SnippetProvider implements TreeDataProvider<Snippet> {
 	}
 }
 
-export class Snippet extends TreeItem {
+class Snippet extends TreeItem {
 
 	constructor(
 		public readonly label: string,
-		private scope: string,
+		private scope: string | undefined,
 		public readonly collapsibleState: TreeItemCollapsibleState,
-		public absolutePath?: string,
-		public readonly command?: Command
+		public readonly command: Command
 	) {
 		super(label, collapsibleState);
 	}
 
 	get tooltip(): string {
-		return this.scope;
+		return this.scope || '';
 	}
 
 	get description(): string | undefined {
@@ -123,4 +122,16 @@ export class Snippet extends TreeItem {
 	}
 
 	contextValue = 'snippet';
+}
+export class SnippetFile extends TreeItem {
+
+	constructor(
+		public readonly label: string,
+		public readonly collapsibleState: TreeItemCollapsibleState,
+		public readonly absolutePath: string
+	) {
+		super(label, collapsibleState);
+	}
+
+	contextValue = 'snippetFile';
 }

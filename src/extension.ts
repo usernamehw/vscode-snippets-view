@@ -1,7 +1,7 @@
 'use strict';
-import { ExtensionContext, commands, window, workspace } from 'vscode';
+import { ExtensionContext, commands, window, workspace, Uri } from 'vscode';
 import * as path from 'path';
-import { SnippetProvider } from './provider';
+import { SnippetProvider, SnippetFile } from './provider';
 import { IConfig } from './types';
 
 export const EXTENSION_NAME = 'snippets-view';
@@ -19,12 +19,17 @@ export function activate(extensionContext: ExtensionContext) {
 			commands.executeCommand('workbench.action.focusActiveEditorGroup');
 		}
 	});
+	const openSnippetsFile = commands.registerCommand(`${EXTENSION_NAME}.openSnippetFile`, (snippetFile: SnippetFile) => {
+		workspace.openTextDocument(Uri.file(snippetFile.absolutePath)).then(doc => {
+			window.showTextDocument(doc);
+		});
+	});
 	const refresh = commands.registerCommand('snippets-view.tree.refresh', () => snippetsProvider.refresh());
 
 	const snippetsProvider = new SnippetProvider(path.join(extensionContext.logPath, '../../../..', 'User/snippets'));
 	const snippetsTree = window.registerTreeDataProvider(`${EXTENSION_NAME}.tree`, snippetsProvider);
 
-	extensionContext.subscriptions.push(insertSnippet, snippetsTree, refresh);
+	extensionContext.subscriptions.push(insertSnippet, snippetsTree, refresh, openSnippetsFile);
 }
 
 export function deactivate() { }
