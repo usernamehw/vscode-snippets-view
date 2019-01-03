@@ -12,6 +12,7 @@
 		"type": "git",
 		"url": "https://github.com/usernamehw/vscode-snippets-view"
 	},
+	"icon": "img/icon.png",
 	"bugs": {
 		"url": "https://github.com/usernamehw/vscode-snippets-view/issues"
 	},
