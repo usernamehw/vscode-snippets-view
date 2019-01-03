@@ -1,6 +1,5 @@
 'use strict';
-import { ExtensionContext, commands, window, workspace, TextEditor, TextDocument } from 'vscode';
-// import * as vscode from 'vscode';
+import { ExtensionContext, commands, window, workspace } from 'vscode';
 import * as path from 'path';
 import { SnippetProvider } from './provider';
 import { IConfig } from './types';
