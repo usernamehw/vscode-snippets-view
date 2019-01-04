@@ -12,5 +12,5 @@ export interface IConfig {
 }
 export enum SnippetFileExtensions {
 	json = '.json',
-	codeSnippets = '.code-snippets'
+	codeSnippets = '.code-snippets',
 }
