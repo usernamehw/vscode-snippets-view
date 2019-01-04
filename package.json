@@ -75,7 +75,7 @@
 				}
 			},
 			{
-				"command": "snippets-view.openSnippetFile",
+				"command": "snippets-view.openSnippetsFile",
 				"title": "Open Snippets File",
 				"category": "Snippets View"
 			}
@@ -90,7 +90,7 @@
 			],
 			"view/item/context": [
 				{
-					"command": "snippets-view.openSnippetFile",
+					"command": "snippets-view.openSnippetsFile",
 					"when": "view == snippets-view.tree && viewItem == snippetFile"
 				}
 			]

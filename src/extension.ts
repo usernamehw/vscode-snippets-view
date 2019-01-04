@@ -19,7 +19,7 @@ export function activate(extensionContext: ExtensionContext) {
 			commands.executeCommand('workbench.action.focusActiveEditorGroup');
 		}
 	});
-	const openSnippetsFile = commands.registerCommand(`${EXTENSION_NAME}.openSnippetFile`, (snippetFile: SnippetFile) => {
+	const openSnippetsFile = commands.registerCommand(`${EXTENSION_NAME}.openSnippetsFile`, (snippetFile: SnippetFile) => {
 		workspace.openTextDocument(Uri.file(snippetFile.absolutePath)).then(doc => {
 			window.showTextDocument(doc);
 		});
