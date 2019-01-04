@@ -135,6 +135,9 @@ export class SnippetFile extends TreeItem {
 		readonly absolutePath: string,
 	) {
 		super(label, collapsibleState);
+
+		this.resourceUri = Uri.file(absolutePath);
+		this.iconPath = ThemeIcon.File;
 	}
 
 	contextValue = 'snippetFile';

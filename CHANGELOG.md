@@ -1,3 +1,8 @@
+### 0.0.5 `04 Jan 2019`
+
+- ✨ Add icons (`.json`) to snippet files
+- 🔨 Stricter **TSLint** rules, refactor
+
 ### 0.0.4 `03 Jan 2019`
 
 - ✨ Context Menu: Open the corresponding snippets file
