@@ -29,7 +29,8 @@
 		"multi-root ready"
 	],
 	"categories": [
-		"Snippets"
+		"Snippets",
+		"Other"
 	],
 	"activationEvents": [
 		"onView:snippets-view.tree"
