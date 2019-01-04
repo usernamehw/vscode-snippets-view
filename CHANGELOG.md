@@ -4,7 +4,7 @@
 
 ### 0.0.3 `03 Jan 2019`
 
-- ✨ Include [project-level snippets](https://github.com/Microsoft/vscode/issues/8102)
+- ✨ Include [project-level snippets](https://github.com/Microsoft/vscode/issues/8102#issuecomment-423476360)
 -  Add Extension icon
 
 ### 0.0.2 `02 Jan 2019`
