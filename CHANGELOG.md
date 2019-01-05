@@ -1,3 +1,9 @@
+### 0.0.6 `05 Jan 2019`
+
+- ✨ Add Setting `snippets-view.flatten`
+- ✨ ContextMenu: Open snippets file from any snippet
+- ✨ ContextMenu: Openining snippet scrolls it into view
+
 ### 0.0.5 `04 Jan 2019`
 
 - ✨ Add icons (`.json`) to snippet files
@@ -14,7 +20,7 @@
 
 ### 0.0.2 `02 Jan 2019`
 
-- ✨ Add Refresh button ↻
+- ✨ Add Refresh button **↻**
 
 ### 0.0.1 `02 Jan 2019`
 

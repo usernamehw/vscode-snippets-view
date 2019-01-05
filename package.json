@@ -44,7 +44,12 @@
 				"snippets-view.focusEditorAfterInsertion": {
 					"type": "boolean",
 					"default": true,
-					"description": "TODO: write description"
+					"description": "When `true` - focus shifts from TreeView to active TextEditor after snippet insertion."
+				},
+				"snippets-view.flatten": {
+					"type": "boolean",
+					"default": false,
+					"description": "When `true` – doesn't show origin files of snippets."
 				}
 			}
 		},
@@ -92,7 +97,7 @@
 			"view/item/context": [
 				{
 					"command": "snippets-view.openSnippetsFile",
-					"when": "view == snippets-view.tree && viewItem == snippetFile"
+					"when": "view == snippets-view.tree && viewItem =~ /snippet|snippetFile/"
 				}
 			]
 		}

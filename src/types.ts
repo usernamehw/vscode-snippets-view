@@ -9,6 +9,7 @@ export interface ISnippetFile {
 }
 export interface IConfig {
 	focusEditorAfterInsertion: boolean;
+	flatten: boolean;
 }
 export enum SnippetFileExtensions {
 	json = '.json',

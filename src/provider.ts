@@ -5,18 +5,24 @@ import { Command, Event, EventEmitter, ThemeIcon, TreeDataProvider, TreeItem, Tr
 import * as vscode from 'vscode';
 
 import { EXTENSION_NAME } from './extension';
-import { ISnippetFile, SnippetFileExtensions } from './types';
+import { IConfig, ISnippetFile, SnippetFileExtensions } from './types';
 
 export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> {
 
 	private _onDidChangeTreeData: EventEmitter<Snippet | undefined> = new EventEmitter<Snippet | undefined>();
 	readonly onDidChangeTreeData: Event<Snippet | undefined> = this._onDidChangeTreeData.event;
 
-	constructor(private readonly snippetsDirPath: string) {
-	}
+	constructor(
+		private readonly snippetsDirPath: string,
+		private config: IConfig,
+	) { }
 
 	refresh(): void {
 		this._onDidChangeTreeData.fire();
+	}
+
+	updateConfig(newConfig: IConfig) {
+		this.config = newConfig;
 	}
 
 	getTreeItem(element: Snippet | SnippetFile): TreeItem {
@@ -25,59 +31,20 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 
 	getChildren(element?: SnippetFile): Promise<Snippet[] | SnippetFile[]> {
 		if (element) {
-			// Fetch Snippet files contents
-			return new Promise((resolve, reject) => {
-				const absolutePath = element.absolutePath;
-				if (!absolutePath) {
-					return reject([]);
-				}
-
-				fs.readFile(absolutePath, 'utf8', (err, contents) => {
-					if (err) {
-						window.showErrorMessage(`Error reading file ${absolutePath} \n ${err.message}`);
-						return reject([]);
-					}
-
-					if (contents === '') {
-						return resolve([]);
-					}
-
-					let parsedSnippets: ISnippetFile;
-					try {
-						parsedSnippets = JSON5.parse(contents);
-					} catch (err) {
-						window.showErrorMessage(`JSON parsing of snippet file ${element.absolutePath} failed`);
-						return reject([]);
-					}
-
-					const snippets: Snippet[] = [];
-					for (const key in parsedSnippets) {
-						const parsed = parsedSnippets[key];
-						snippets.push(new Snippet(key, parsed.scope, TreeItemCollapsibleState.None, {
-							command: `${EXTENSION_NAME}.insertSnippet`,
-							title: 'Insert Snippet',
-							arguments: [parsed.body],
-						}));
-					}
+			return this.getSnippetFileContents(element.absolutePath);
+		} else {
+			if (this.config.flatten) {
+				return new Promise(async (resolve, reject) => {
+					const snippetFiles = await this.getSnippetFiles();
+					// @ts-ignore
+					const snippets = [].concat.apply([], await Promise.all(snippetFiles.map(async file => {
+						return this.getSnippetFileContents(file.absolutePath);
+					})));
 					return resolve(snippets);
 				});
-			});
-		} else {
-			// Fetch Snippet files
-			return new Promise(async (resolve, reject) => {
-				const workspaceFolders = workspace.workspaceFolders;
-				let projectLevelSnippets: SnippetFile[] = [];
-				if (workspaceFolders) {
-					// @ts-ignore
-					projectLevelSnippets = [].concat.apply([], await Promise.all(workspaceFolders.map(async folder => {
-						return this.getSnippetFilesFromDirectory(path.join(folder.uri.fsPath, '.vscode'), [SnippetFileExtensions.codeSnippets]);
-					})));
-				}
-
-				const globalLevelSnippets: SnippetFile[] = await this.getSnippetFilesFromDirectory(this.snippetsDirPath, [SnippetFileExtensions.json, SnippetFileExtensions.codeSnippets]);
-
-				return resolve(projectLevelSnippets.concat(globalLevelSnippets));
-			});
+			} else {
+				return this.getSnippetFiles();
+			}
 		}
 	}
 
@@ -102,14 +69,66 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 			});
 		});
 	}
+
+	private getSnippetFiles(): Promise<SnippetFile[]> {
+		return new Promise(async (resolve, reject) => {
+			const workspaceFolders = workspace.workspaceFolders;
+			let projectLevelSnippets: SnippetFile[] = [];
+			if (workspaceFolders) {
+				// @ts-ignore
+				projectLevelSnippets = [].concat.apply([], await Promise.all(workspaceFolders.map(async folder => {
+					return this.getSnippetFilesFromDirectory(path.join(folder.uri.fsPath, '.vscode'), [SnippetFileExtensions.codeSnippets]);
+				})));
+			}
+
+			const globalLevelSnippets: SnippetFile[] = await this.getSnippetFilesFromDirectory(this.snippetsDirPath, [SnippetFileExtensions.json, SnippetFileExtensions.codeSnippets]);
+
+			return resolve(projectLevelSnippets.concat(globalLevelSnippets));
+		});
+	}
+
+	private getSnippetFileContents(absolutePath: string): Promise<Snippet[]> {
+		return new Promise((resolve, reject) => {
+			fs.readFile(absolutePath, 'utf8', (err, contents) => {
+				if (err) {
+					window.showErrorMessage(`Error reading file ${absolutePath} \n ${err.message}`);
+					return reject([]);
+				}
+
+				if (contents === '') {
+					return resolve([]);
+				}
+
+				let parsedSnippets: ISnippetFile;
+				try {
+					parsedSnippets = JSON5.parse(contents);
+				} catch (err) {
+					window.showErrorMessage(`JSON parsing of snippet file ${absolutePath} failed`);
+					return reject([]);
+				}
+
+				const snippets: Snippet[] = [];
+				for (const key in parsedSnippets) {
+					const parsed = parsedSnippets[key];
+					snippets.push(new Snippet(key, parsed.scope, TreeItemCollapsibleState.None, absolutePath, {
+						command: `${EXTENSION_NAME}.insertSnippet`,
+						title: 'Insert Snippet',
+						arguments: [parsed.body],
+					}));
+				}
+				return resolve(snippets);
+			});
+		});
+	}
 }
 
-class Snippet extends TreeItem {
+export class Snippet extends TreeItem {
 
 	constructor(
 		readonly label: string,
 		private scope: string | undefined,
 		readonly collapsibleState: TreeItemCollapsibleState,
+		readonly absolutePath: string,
 		readonly command: Command,
 	) {
 		super(label, collapsibleState);
