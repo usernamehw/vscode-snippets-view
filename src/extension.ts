@@ -15,7 +15,7 @@ export function activate(extensionContext: ExtensionContext) {
 	let firstSnippetFileOpeningDelay = 800;
 	setTimeout(() => {
 		firstSnippetFileOpeningDelay = 0;
-	}, 5000);
+	}, 4000);
 
 	const insertSnippet = commands.registerCommand(`${EXTENSION_NAME}.insertSnippet`, (snippetBody: ISnippet['body']) => {
 		let snippetAsString;
