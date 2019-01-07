@@ -2,7 +2,7 @@
 	"name": "snippets-view",
 	"displayName": "Snippets View",
 	"description": "View and insert configured inside vscode snippets",
-	"version": "0.0.7",
+	"version": "0.0.8",
 	"publisher": "usernamehw",
 	"license": "MIT",
 	"engines": {
