@@ -1,6 +1,6 @@
 ## 0.0.7 `06 Jan 2019`
 
-- 🐛 ContextMenu on Snippet - it should wait until the document is loaded before scrolling
+- 🐛 ContextMenu on Snippet - it should wait on the first file opening until the document is loaded before scrolling
 - 🔨 Bundle extension with [webpack](https://github.com/Microsoft/vscode-extension-samples/tree/master/webpack-sample)
 - 🔨 Compress `.svg` images, compress extension icon, remove some runaway `.test` files from extension
 
