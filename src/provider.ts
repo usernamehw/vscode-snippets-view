@@ -21,7 +21,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		this._onDidChangeTreeData.fire();
 	}
 
-	updateConfig(newConfig: IConfig) {
+	updateConfig(newConfig: IConfig): void {
 		this.config = newConfig;
 	}
 

@@ -27,8 +27,9 @@ export function activate(extensionContext: ExtensionContext) {
 
 	const openSnippetsFile = commands.registerCommand(`${EXTENSION_NAME}.openSnippetsFile`, (snippetFile: SnippetFile | Snippet) => {
 		workspace.openTextDocument(Uri.file(snippetFile.absolutePath)).then(document => {
-			window.showTextDocument(document);
-			goToSymbol(document, snippetFile.label);
+			window.showTextDocument(document).then(() => {
+				goToSymbol(document, snippetFile.label);
+			});
 		});
 	});
 
