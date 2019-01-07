@@ -84,6 +84,8 @@ export function activate(extensionContext: ExtensionContext) {
 			} catch (err) {
 				window.showErrorMessage(`Invalid regex for "excludeRegex" ${err.toString()}`);
 			}
+		} else if (newRegex === '') {
+			config._excludeRegex = undefined;
 		}
 	}
 

@@ -12,7 +12,7 @@ export interface IConfig {
 	flatten: boolean;
 	excludeRegex: 'string';
 
-	_excludeRegex: RegExp;
+	_excludeRegex?: RegExp;
 }
 export enum SnippetFileExtensions {
 	json = '.json',
