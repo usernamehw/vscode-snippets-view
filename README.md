@@ -9,7 +9,7 @@
 - [x] ContextMenu: Open the corresponding snippets file
 - [x] Add Theme `.json` icons to Snippet Files
 - [x] Setting: Flatten snippets (Don't show the origin files inside View)
+- [x] A way to exclude snippets from view
 - [ ] Setting: Show only appropriate snippets (if active editor language is TypeScript - then show only TypeScript snippets & global snippets)
 - [ ] Filter snippets
 - [ ] Sorting of snippets?
-- [ ] A way to exclude snippets from view?

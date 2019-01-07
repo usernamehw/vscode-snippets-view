@@ -50,6 +50,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "When `true` – doesn't show origin files of snippets."
+				},
+				"snippets-view.excludeRegex": {
+					"type": "string",
+					"default": "",
+					"description": "RegExp to exclude snippets from the tree-view (case-insensitive).\nExample: \"vue|then|^for$\""
 				}
 			}
 		},

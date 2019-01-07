@@ -1,3 +1,7 @@
+## 0.0.8 `07 Jan 2019`
+
+- ✨ Add a setting to exclude snippets from tree view `excludeRegex`
+
 ## 0.0.7 `06 Jan 2019`
 
 - 🐛 ContextMenu on Snippet - it should wait on the first file opening until the document is loaded before scrolling

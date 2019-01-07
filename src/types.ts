@@ -10,6 +10,9 @@ export interface ISnippetFile {
 export interface IConfig {
 	focusEditorAfterInsertion: boolean;
 	flatten: boolean;
+	excludeRegex: 'string';
+
+	_excludeRegex: RegExp;
 }
 export enum SnippetFileExtensions {
 	json = '.json',

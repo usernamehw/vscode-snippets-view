@@ -10,6 +10,7 @@ export const EXTENSION_NAME = 'snippets-view';
 
 export function activate(extensionContext: ExtensionContext) {
 	const config = { ...workspace.getConfiguration(EXTENSION_NAME) } as any as IConfig;
+	updateExcludeRegex(config.excludeRegex);
 
 	// IDK maybe json language not started before the first opening of .json?
 	let firstSnippetFileOpeningDelay = 800;
@@ -70,6 +71,19 @@ export function activate(extensionContext: ExtensionContext) {
 			snippetsProvider.refresh();
 		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.focusEditorAfterInsertion`)) {
 			config.focusEditorAfterInsertion = newConfig.focusEditorAfterInsertion;
+		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.excludeRegex`)) {
+			updateExcludeRegex(newConfig.excludeRegex);
+			snippetsProvider.updateConfig(config);
+			snippetsProvider.refresh();
+		}
+	}
+	function updateExcludeRegex(newRegex: string) {
+		if (newRegex && typeof newRegex === 'string') {
+			try {
+				config._excludeRegex = new RegExp(newRegex, 'i');
+			} catch (err) {
+				window.showErrorMessage(`Invalid regex for "excludeRegex" ${err.toString()}`);
+			}
 		}
 	}
 

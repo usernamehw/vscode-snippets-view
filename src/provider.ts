@@ -109,6 +109,9 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 
 				const snippets: Snippet[] = [];
 				for (const key in parsedSnippets) {
+					if (this.config._excludeRegex && this.config._excludeRegex.test(key)) {
+						continue;
+					}
 					const parsed = parsedSnippets[key];
 					snippets.push(new Snippet(key, parsed.scope, TreeItemCollapsibleState.None, absolutePath, {
 						command: `${EXTENSION_NAME}.insertSnippet`,
