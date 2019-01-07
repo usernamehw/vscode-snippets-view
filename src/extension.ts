@@ -11,6 +11,12 @@ export const EXTENSION_NAME = 'snippets-view';
 export function activate(extensionContext: ExtensionContext) {
 	const config = { ...workspace.getConfiguration(EXTENSION_NAME) } as any as IConfig;
 
+	// IDK maybe json language not started before the first opening of .json?
+	let firstSnippetFileOpeningDelay = 800;
+	setTimeout(() => {
+		firstSnippetFileOpeningDelay = 0;
+	}, 5000);
+
 	const insertSnippet = commands.registerCommand(`${EXTENSION_NAME}.insertSnippet`, (snippetBody: ISnippet['body']) => {
 		let snippetAsString;
 		if (Array.isArray(snippetBody)) {
@@ -27,9 +33,12 @@ export function activate(extensionContext: ExtensionContext) {
 
 	const openSnippetsFile = commands.registerCommand(`${EXTENSION_NAME}.openSnippetsFile`, (snippetFile: SnippetFile | Snippet) => {
 		workspace.openTextDocument(Uri.file(snippetFile.absolutePath)).then(document => {
-			window.showTextDocument(document).then(() => {
-				goToSymbol(document, snippetFile.label);
-			});
+			setTimeout(() => {
+				window.showTextDocument(document).then(() => {
+					goToSymbol(document, snippetFile.label);
+					firstSnippetFileOpeningDelay = 0;
+				});
+			}, firstSnippetFileOpeningDelay);
 		});
 	});
 
@@ -42,8 +51,8 @@ export function activate(extensionContext: ExtensionContext) {
 		const findSymbol = symbols.find(symbol => symbol.name === symbolName);
 		const activeTextEditor = window.activeTextEditor;
 		if (findSymbol && activeTextEditor) {
-			activeTextEditor.revealRange(findSymbol.range, vscode.TextEditorRevealType.AtTop);
 			activeTextEditor.selection = new Selection(findSymbol.range.start, findSymbol.range.start);
+			activeTextEditor.revealRange(findSymbol.range, vscode.TextEditorRevealType.AtTop);
 		}
 	}
 
