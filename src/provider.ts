@@ -140,26 +140,30 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 
 export class Snippet extends TreeItem {
 	readonly collapsibleState = TreeItemCollapsibleState.None;
+	readonly scope: string[] = [];
 
 	constructor(
 		readonly label: string,
-		private scope: string,
+		stringScope: string,
 		readonly command: Command,
 		readonly snippetFile: SnippetFile,
 		readonly config: IConfig,
 	) {
 		super(label);
+		if (stringScope) {
+			this.scope = stringScope.split(',');
+		}
 	}
 
 	get tooltip() {
-		return this.scope;
+		return this.scope.join(',');
 	}
 
 	get description() {
 		if (this.snippetFile.isJSON && !this.config.flatten) {
 			return;
 		}
-		return this.scope;
+		return this.scope.join(',');
 	}
 
 	contextValue = 'snippet';
