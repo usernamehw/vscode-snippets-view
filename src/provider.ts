@@ -35,7 +35,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		} else {
 			if (this.config.flatten) {
 				return new Promise(async (resolve, reject) => {
-					const snippetFiles = await this.getSnippetFiles();
+					const snippetFiles = await this.getAllSnippetFiles();
 					// @ts-ignore
 					const snippets = [].concat.apply([], await Promise.all(snippetFiles.map(async file => {
 						return this.getSnippetFileContents(file.absolutePath);
@@ -43,7 +43,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 					return resolve(snippets);
 				});
 			} else {
-				return this.getSnippetFiles();
+				return this.getAllSnippetFiles();
 			}
 		}
 	}
@@ -70,7 +70,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		});
 	}
 
-	private getSnippetFiles(): Promise<SnippetFile[]> {
+	private getAllSnippetFiles(): Promise<SnippetFile[]> {
 		return new Promise(async (resolve, reject) => {
 			const workspaceFolders = workspace.workspaceFolders;
 			let projectLevelSnippets: SnippetFile[] = [];
