@@ -63,9 +63,9 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 					const absolutePath = path.join(absoluteDirPath, file);
 					if (includeExtensions.indexOf(extname as SnippetFileExtensions) !== -1) {
 						if (extname === SnippetFileExtensions.json) {
-							snippets.push(new SnippetFile(filename, TreeItemCollapsibleState.Expanded, absolutePath, true));
+							snippets.push(new SnippetFile(filename, absolutePath, true));
 						} else {
-							snippets.push(new SnippetFile(filename, TreeItemCollapsibleState.Expanded, absolutePath, false));
+							snippets.push(new SnippetFile(filename, absolutePath, false));
 						}
 					}
 				});
@@ -123,7 +123,6 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 					snippets.push(new Snippet(
 						key,
 						parsed.scope || '',
-						TreeItemCollapsibleState.None,
 						{
 							command: `${EXTENSION_NAME}.insertSnippet`,
 							title: 'Insert Snippet',
@@ -140,16 +139,16 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 }
 
 export class Snippet extends TreeItem {
+	readonly collapsibleState = TreeItemCollapsibleState.None;
 
 	constructor(
 		readonly label: string,
 		private scope: string,
-		readonly collapsibleState: TreeItemCollapsibleState,
 		readonly command: Command,
 		readonly snippetFile: SnippetFile,
 		readonly config: IConfig,
 	) {
-		super(label, collapsibleState);
+		super(label);
 	}
 
 	get tooltip() {
@@ -167,14 +166,14 @@ export class Snippet extends TreeItem {
 }
 
 export class SnippetFile extends TreeItem {
+	readonly collapsibleState = TreeItemCollapsibleState.Expanded;
 
 	constructor(
 		readonly label: string,
-		readonly collapsibleState: TreeItemCollapsibleState,
 		readonly absolutePath: string,
 		readonly isJSON: boolean,
 	) {
-		super(label, collapsibleState);
+		super(label);
 
 		this.resourceUri = Uri.file(absolutePath);
 		this.iconPath = ThemeIcon.File;
