@@ -31,14 +31,14 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 
 	getChildren(element?: SnippetFile): Promise<Snippet[] | SnippetFile[]> {
 		if (element) {
-			return this.getSnippetFileContents(element.absolutePath, element.isJSON, element.label);
+			return this.getSnippetFileContents(element);
 		} else {
 			if (this.config.flatten) {
 				return new Promise(async (resolve, reject) => {
 					const snippetFiles = await this.getAllSnippetFiles();
 					// @ts-ignore
 					const snippets = [].concat.apply([], await Promise.all(snippetFiles.map(async file => {
-						return this.getSnippetFileContents(file.absolutePath, file.isJSON, file.label);
+						return this.getSnippetFileContents(file);
 					})));
 					return resolve(snippets);
 				});
@@ -91,11 +91,11 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		});
 	}
 
-	private getSnippetFileContents(absolutePath: string, isJSON: boolean, filename: string): Promise<Snippet[]> {
+	private getSnippetFileContents(snippetFile: SnippetFile): Promise<Snippet[]> {
 		return new Promise((resolve, reject) => {
-			fs.readFile(absolutePath, 'utf8', (err, contents) => {
+			fs.readFile(snippetFile.absolutePath, 'utf8', (err, contents) => {
 				if (err) {
-					window.showErrorMessage(`Error reading file ${absolutePath} \n ${err.message}`);
+					window.showErrorMessage(`Error reading file ${snippetFile.absolutePath} \n ${err.message}`);
 					return reject([]);
 				}
 
@@ -107,7 +107,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 				try {
 					parsedSnippets = JSON5.parse(contents);
 				} catch (err) {
-					window.showErrorMessage(`JSON parsing of snippet file ${absolutePath} failed`);// TODO: make file link clickable
+					window.showErrorMessage(`JSON parsing of snippet file ${snippetFile.absolutePath} failed`);
 					return reject([]);
 				}
 
@@ -117,18 +117,20 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 						continue;
 					}
 					const parsed = parsedSnippets[key];
-					if (!parsed.scope && isJSON) {
-						parsed.scope = filename;
+					if (!parsed.scope && snippetFile.isJSON) {
+						parsed.scope = snippetFile.label;
 					}
 					snippets.push(new Snippet(
 						key,
 						parsed.scope || '',
-						TreeItemCollapsibleState.None, absolutePath,
+						TreeItemCollapsibleState.None,
 						{
 							command: `${EXTENSION_NAME}.insertSnippet`,
 							title: 'Insert Snippet',
 							arguments: [parsed.body],
 						},
+						snippetFile,
+						this.config,
 					));
 				}
 				return resolve(snippets);
@@ -143,22 +145,27 @@ export class Snippet extends TreeItem {
 		readonly label: string,
 		private scope: string,
 		readonly collapsibleState: TreeItemCollapsibleState,
-		readonly absolutePath: string,
 		readonly command: Command,
+		readonly snippetFile: SnippetFile,
+		readonly config: IConfig,
 	) {
 		super(label, collapsibleState);
 	}
 
-	get tooltip(): string {
+	get tooltip() {
 		return this.scope;
 	}
 
-	get description(): string {
+	get description() {
+		if (this.snippetFile.isJSON && !this.config.flatten) {
+			return;
+		}
 		return this.scope;
 	}
 
 	contextValue = 'snippet';
 }
+
 export class SnippetFile extends TreeItem {
 
 	constructor(

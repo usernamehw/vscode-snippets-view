@@ -26,10 +26,16 @@ export function activate(extensionContext: ExtensionContext) {
 		}
 	});
 
-	const openSnippetsFile = commands.registerCommand(`${EXTENSION_NAME}.openSnippetsFile`, (snippetFile: SnippetFile | Snippet) => {
-		workspace.openTextDocument(Uri.file(snippetFile.absolutePath)).then(document => {
+	const openSnippetsFile = commands.registerCommand(`${EXTENSION_NAME}.openSnippetsFile`, (arg: SnippetFile | Snippet) => {
+		let absolutePath: string;
+		if (arg instanceof Snippet) {
+			absolutePath = arg.snippetFile.absolutePath;
+		} else {
+			absolutePath = arg.absolutePath;
+		}
+		workspace.openTextDocument(Uri.file(absolutePath)).then(document => {
 			window.showTextDocument(document).then(() => {
-				goToSymbol(document, snippetFile.label);
+				goToSymbol(document, arg.label);
 			});
 		});
 	});
