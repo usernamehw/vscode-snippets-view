@@ -31,14 +31,14 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 
 	getChildren(element?: SnippetFile): Promise<Snippet[] | SnippetFile[]> {
 		if (element) {
-			return this.getSnippetFileContents(element.absolutePath);
+			return this.getSnippetFileContents(element.absolutePath, element.isJSON, element.label);
 		} else {
 			if (this.config.flatten) {
 				return new Promise(async (resolve, reject) => {
 					const snippetFiles = await this.getAllSnippetFiles();
 					// @ts-ignore
 					const snippets = [].concat.apply([], await Promise.all(snippetFiles.map(async file => {
-						return this.getSnippetFileContents(file.absolutePath);
+						return this.getSnippetFileContents(file.absolutePath, file.isJSON, file.label);
 					})));
 					return resolve(snippets);
 				});
@@ -62,7 +62,11 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 					const filename = path.parse(file).name;
 					const absolutePath = path.join(absoluteDirPath, file);
 					if (includeExtensions.indexOf(extname as SnippetFileExtensions) !== -1) {
-						snippets.push(new SnippetFile(filename, TreeItemCollapsibleState.Expanded, absolutePath));
+						if (extname === SnippetFileExtensions.json) {
+							snippets.push(new SnippetFile(filename, TreeItemCollapsibleState.Expanded, absolutePath, true));
+						} else {
+							snippets.push(new SnippetFile(filename, TreeItemCollapsibleState.Expanded, absolutePath, false));
+						}
 					}
 				});
 				return resolve(snippets);
@@ -87,7 +91,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		});
 	}
 
-	private getSnippetFileContents(absolutePath: string): Promise<Snippet[]> {
+	private getSnippetFileContents(absolutePath: string, isJSON: boolean, filename: string): Promise<Snippet[]> {
 		return new Promise((resolve, reject) => {
 			fs.readFile(absolutePath, 'utf8', (err, contents) => {
 				if (err) {
@@ -113,6 +117,9 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 						continue;
 					}
 					const parsed = parsedSnippets[key];
+					if (!parsed.scope && isJSON) {
+						parsed.scope = filename;
+					}
 					snippets.push(new Snippet(
 						key,
 						parsed.scope || '',
@@ -158,6 +165,7 @@ export class SnippetFile extends TreeItem {
 		readonly label: string,
 		readonly collapsibleState: TreeItemCollapsibleState,
 		readonly absolutePath: string,
+		readonly isJSON: boolean,
 	) {
 		super(label, collapsibleState);
 
