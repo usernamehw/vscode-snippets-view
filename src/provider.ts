@@ -113,11 +113,16 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 						continue;
 					}
 					const parsed = parsedSnippets[key];
-					snippets.push(new Snippet(key, parsed.scope, TreeItemCollapsibleState.None, absolutePath, {
-						command: `${EXTENSION_NAME}.insertSnippet`,
-						title: 'Insert Snippet',
-						arguments: [parsed.body],
-					}));
+					snippets.push(new Snippet(
+						key,
+						parsed.scope || '',
+						TreeItemCollapsibleState.None, absolutePath,
+						{
+							command: `${EXTENSION_NAME}.insertSnippet`,
+							title: 'Insert Snippet',
+							arguments: [parsed.body],
+						},
+					));
 				}
 				return resolve(snippets);
 			});
@@ -129,7 +134,7 @@ export class Snippet extends TreeItem {
 
 	constructor(
 		readonly label: string,
-		private scope: string | undefined,
+		private scope: string,
 		readonly collapsibleState: TreeItemCollapsibleState,
 		readonly absolutePath: string,
 		readonly command: Command,
@@ -138,13 +143,11 @@ export class Snippet extends TreeItem {
 	}
 
 	get tooltip(): string {
-		return this.scope || '';
+		return this.scope;
 	}
 
-	get description(): string | undefined {
-		if (typeof this.scope === 'string') {
-			return this.scope;
-		}
+	get description(): string {
+		return this.scope;
 	}
 
 	contextValue = 'snippet';
