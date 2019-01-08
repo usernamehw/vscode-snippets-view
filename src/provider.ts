@@ -103,7 +103,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 				try {
 					parsedSnippets = JSON5.parse(contents);
 				} catch (err) {
-					window.showErrorMessage(`JSON parsing of snippet file ${absolutePath} failed`);
+					window.showErrorMessage(`JSON parsing of snippet file ${absolutePath} failed`);// TODO: make file link clickable
 					return reject([]);
 				}
 
