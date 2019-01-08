@@ -12,12 +12,6 @@ export function activate(extensionContext: ExtensionContext) {
 	const config = { ...workspace.getConfiguration(EXTENSION_NAME) } as any as IConfig;
 	updateExcludeRegex(config.excludeRegex);
 
-	// IDK maybe json language not started before the first opening of .json?
-	let firstSnippetFileOpeningDelay = 800;
-	setTimeout(() => {
-		firstSnippetFileOpeningDelay = 0;
-	}, 4000);
-
 	const insertSnippet = commands.registerCommand(`${EXTENSION_NAME}.insertSnippet`, (snippetBody: ISnippet['body']) => {
 		let snippetAsString;
 		if (Array.isArray(snippetBody)) {
@@ -34,17 +28,24 @@ export function activate(extensionContext: ExtensionContext) {
 
 	const openSnippetsFile = commands.registerCommand(`${EXTENSION_NAME}.openSnippetsFile`, (snippetFile: SnippetFile | Snippet) => {
 		workspace.openTextDocument(Uri.file(snippetFile.absolutePath)).then(document => {
-			setTimeout(() => {
-				window.showTextDocument(document).then(() => {
-					goToSymbol(document, snippetFile.label);
-					firstSnippetFileOpeningDelay = 0;
-				});
-			}, firstSnippetFileOpeningDelay);
+			window.showTextDocument(document).then(() => {
+				goToSymbol(document, snippetFile.label);
+			});
 		});
 	});
 
 	async function getSymbols(document: TextDocument): Promise<DocumentSymbol[]> {
-		return await commands.executeCommand<DocumentSymbol[]>('vscode.executeDocumentSymbolProvider', document.uri) || [];
+		return new Promise(async (resolve, reject) => {
+			let symbols = await commands.executeCommand<DocumentSymbol[]>('vscode.executeDocumentSymbolProvider', document.uri);
+			if (!symbols || symbols.length === 0) {
+				setTimeout(async () => {
+					symbols = await commands.executeCommand<DocumentSymbol[]>('vscode.executeDocumentSymbolProvider', document.uri);
+					return resolve(symbols || []);
+				}, 1200);
+			} else {
+				return resolve(symbols || []);
+			}
+		});
 	}
 
 	async function goToSymbol(document: TextDocument, symbolName: string) {
