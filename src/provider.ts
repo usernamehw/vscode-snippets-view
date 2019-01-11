@@ -1,11 +1,11 @@
 import * as fs from 'fs';
 import * as JSON5 from 'json5';
 import * as path from 'path';
-import { Command, Event, EventEmitter, ThemeIcon, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window, workspace } from 'vscode';
+import { Command, Event, EventEmitter, TextEditor, ThemeIcon, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window, workspace } from 'vscode';
 import * as vscode from 'vscode';
 
 import { EXTENSION_NAME } from './extension';
-import { IConfig, ISnippetFile, SnippetFileExtensions } from './types';
+import { IConfig, ISnippetFile, SessionCache, SnippetFileExtensions } from './types';
 
 export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> {
 
@@ -17,33 +17,55 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		private config: IConfig,
 	) { }
 
-	refresh(): void {
+	refresh(disposeCache: boolean): void {
+		if (disposeCache) {
+			SnippetProvider.sessionCache.allSnippetFiles = [];
+			SnippetProvider.sessionCache.flattenedSnippets = [];
+			SnippetProvider.sessionCache.snippetsFromFile = {};
+		}
 		this._onDidChangeTreeData.fire();
 	}
 
 	updateConfig(newConfig: IConfig): void {
 		this.config = newConfig;
+		// console.log('💜 :: Provider :: updateConfig');
 	}
 
 	getTreeItem(element: Snippet | SnippetFile): TreeItem {
 		return element;
 	}
 
-	getChildren(element?: SnippetFile): Promise<Snippet[] | SnippetFile[]> {
+	async getChildren(element?: SnippetFile): Promise<Snippet[] | SnippetFile[]> {
 		if (element) {
-			return this.getSnippetFileContents(element);
+			if (SnippetProvider.sessionCache.snippetsFromFile[element.absolutePath]) {
+				return Promise.resolve(SnippetProvider.sessionCache.snippetsFromFile[element.absolutePath].filter(this.filterSnippets).sort(this.sortByScope));
+			}
+
+			const snippetsFromFile = await this.getSnippetFileContents(element);
+
+			SnippetProvider.sessionCache.snippetsFromFile[element.absolutePath] = snippetsFromFile;
+
+			return snippetsFromFile.filter(this.filterSnippets).sort(this.sortByScope);
 		} else {
 			if (this.config.flatten) {
-				return new Promise(async (resolve, reject) => {
-					const snippetFiles = await this.getAllSnippetFiles();
-					// @ts-ignore
-					const snippets = [].concat.apply([], await Promise.all(snippetFiles.map(async file => {
-						return this.getSnippetFileContents(file);
-					})));
-					return resolve(snippets);
-				});
+				if (SnippetProvider.sessionCache.flattenedSnippets.length) {
+					return Promise.resolve(SnippetProvider.sessionCache.flattenedSnippets.filter(this.filterSnippets).sort(this.sortByScope));
+				}
+
+				const allSnippets = await this.getAllSnippets();
+				SnippetProvider.sessionCache.flattenedSnippets = allSnippets;
+
+				return allSnippets.filter(this.filterSnippets).sort(this.sortByScope);
 			} else {
-				return this.getAllSnippetFiles();
+				if (SnippetProvider.sessionCache.allSnippetFiles.length) {
+					return Promise.resolve(SnippetProvider.sessionCache.allSnippetFiles);
+				}
+
+				const allSnippetFiles = await this.getAllSnippetFiles();
+
+				SnippetProvider.sessionCache.allSnippetFiles = allSnippetFiles;
+
+				return allSnippetFiles;
 			}
 		}
 	}
@@ -75,23 +97,37 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 	}
 
 	private getAllSnippetFiles(): Promise<SnippetFile[]> {
+		// console.log('🔴 :: Find all Snippet Files');
 		return new Promise(async (resolve, reject) => {
 			const workspaceFolders = workspace.workspaceFolders;
 			let projectLevelSnippets: SnippetFile[] = [];
 			if (workspaceFolders) {
-				// @ts-ignore
-				projectLevelSnippets = [].concat.apply([], await Promise.all(workspaceFolders.map(async folder => {
+				projectLevelSnippets = Array.prototype.concat.apply([], await Promise.all(workspaceFolders.map(async folder => {
 					return this.getSnippetFilesFromDirectory(path.join(folder.uri.fsPath, '.vscode'), [SnippetFileExtensions.codeSnippets]);
 				})));
 			}
 
 			const globalLevelSnippets: SnippetFile[] = await this.getSnippetFilesFromDirectory(this.snippetsDirPath, [SnippetFileExtensions.json, SnippetFileExtensions.codeSnippets]);
-
 			return resolve(projectLevelSnippets.concat(globalLevelSnippets));
 		});
 	}
 
+	private async getAllSnippetFilesContents(snippetFiles: SnippetFile[]): Promise<Snippet[]> {
+		const snippets = await Promise.all(snippetFiles.map(file => {
+			return this.getSnippetFileContents(file);
+		}));
+
+		return Array.prototype.concat.apply([], snippets);
+	}
+
+	private async getAllSnippets(): Promise<Snippet[]> {
+		const snippetFiles = await this.getAllSnippetFiles();
+		const allSnippets = await this.getAllSnippetFilesContents(snippetFiles);
+		return allSnippets;
+	}
+
 	private getSnippetFileContents(snippetFile: SnippetFile): Promise<Snippet[]> {
+		// console.log('🔵 :: Read Snippet File', snippetFile.absolutePath);
 		return new Promise((resolve, reject) => {
 			fs.readFile(snippetFile.absolutePath, 'utf8', (err, contents) => {
 				if (err) {
@@ -113,16 +149,15 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 
 				const snippets: Snippet[] = [];
 				for (const key in parsedSnippets) {
-					if (this.config._excludeRegex && this.config._excludeRegex.test(key)) {
-						continue;
-					}
 					const parsed = parsedSnippets[key];
 					if (!parsed.scope && snippetFile.isJSON) {
 						parsed.scope = snippetFile.label;
 					}
+					const scope = parsed.scope ? parsed.scope.split(',') : [];
+
 					snippets.push(new Snippet(
 						key,
-						parsed.scope || '',
+						scope,
 						{
 							command: `${EXTENSION_NAME}.insertSnippet`,
 							title: 'Insert Snippet',
@@ -136,23 +171,49 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 			});
 		});
 	}
+	// = () => to bind `this`
+	private filterSnippets = (snippet: Snippet): boolean => {
+		// Exclude regex matching snippet key
+		if (this.config._excludeRegex && this.config._excludeRegex.test(snippet.label)) {
+			return false;
+		}
+		// Exlude snippets except the ones for active editor and the global snippets
+		if (this.config.onlyForActiveEditor && this.config._activeTextEditor && snippet.scope.length !== 0) {
+			if (!snippet.scope.includes(this.config._activeTextEditor.document.languageId)) {
+				return false;
+			}
+		}
+		return true;
+	}
+	// Sort snippets that have:
+	// 1 total and 1 matching scope - the highest
+	// Multiple scopes, but 1 of them matching - after
+	// Global snippets having 0 scopes - the lowest
+	private sortByScope(sn1: Snippet, sn2: Snippet) {
+		const n1 = sn1.scope.length === 1 ? Infinity : sn1.scope.length;
+		const n2 = sn2.scope.length === 1 ? Infinity : sn2.scope.length;
+
+		return n2 - n1;
+	}
+
+	private static sessionCache: SessionCache = {
+		snippetsFromFile: {},
+		flattenedSnippets: [],
+		allSnippetFiles: [],
+	};
 }
 
 export class Snippet extends TreeItem {
 	readonly collapsibleState = TreeItemCollapsibleState.None;
-	readonly scope: string[] = [];
 
 	constructor(
 		readonly label: string,
-		stringScope: string,
+		readonly scope: string[],
 		readonly command: Command,
 		readonly snippetFile: SnippetFile,
 		readonly config: IConfig,
 	) {
 		super(label);
-		if (stringScope) {
-			this.scope = stringScope.split(',');
-		}
 	}
 
 	get tooltip() {

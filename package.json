@@ -55,6 +55,11 @@
 					"type": "string",
 					"default": "",
 					"description": "RegExp to exclude snippets from the tree-view (case-insensitive).\nExample: \"vue|then|^for$\""
+				},
+				"snippets-view.onlyForActiveEditor": {
+					"type": "boolean",
+					"default": false,
+					"description": "When `true` – shows only snippets that match active text editor language and the global snippets."
 				}
 			}
 		},

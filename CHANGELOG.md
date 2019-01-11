@@ -1,3 +1,8 @@
+## 0.1.8
+
+- ✨ Add a setting to show only snippets for active text editor `onlyForActiveEditor` (works well with `flatten`)
+- 🐛 Delay for opening snippets file should be only in case of not yet loaded symbols list
+
 ## 0.0.8 `07 Jan 2019`
 
 - ✨ Add a setting to exclude snippets from tree view `excludeRegex`
@@ -35,4 +40,3 @@
 ## 0.0.1 `02 Jan 2019`
 
 - Initial release
-

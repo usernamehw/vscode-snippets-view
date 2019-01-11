@@ -12,6 +12,7 @@ package-lock.json
 .editorconfig
 .npmrc
 .gitattributes
+*.todo
 
 node_modules
 webpack.config.js

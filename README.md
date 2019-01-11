@@ -1,8 +1,8 @@
-## View Snippets (Alpha version)
+## Snippets View
 
 ![Demo](img/demo.gif)
 
-## TODO:
+## TODO
 
 - [x] Refresh button
 - [x] Include [project-level snippets](https://github.com/Microsoft/vscode/issues/8102#issuecomment-423476360)
@@ -10,6 +10,6 @@
 - [x] Add Theme `.json` icons to Snippet Files
 - [x] Setting: Flatten snippets (Don't show the origin files inside View)
 - [x] A way to exclude snippets from view
-- [ ] Setting: Show only appropriate snippets (if active editor language is TypeScript - then show only TypeScript snippets & global snippets)
-- [ ] Filter snippets (Always visible input blocked by [#50062 Add filter/search box api support to custom tree views](https://github.com/Microsoft/vscode/issues/50062))
-- [ ] Sorting of snippets?
+- [x] Setting: Show only appropriate snippets (if active editor language is TypeScript - then show only TypeScript snippets & global snippets)
+- [ ] Sorting of snippets
+- [ ] Filter snippets (Always visible input is blocked by [#50062 Add filter/search box api support to custom tree views](https://github.com/Microsoft/vscode/issues/50062))

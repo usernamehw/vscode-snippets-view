@@ -10,6 +10,7 @@ export const EXTENSION_NAME = 'snippets-view';
 
 export function activate(extensionContext: ExtensionContext) {
 	const config = { ...workspace.getConfiguration(EXTENSION_NAME) } as any as IConfig;
+	config._activeTextEditor = window.activeTextEditor;
 	updateExcludeRegex(config.excludeRegex);
 
 	const insertSnippet = commands.registerCommand(`${EXTENSION_NAME}.insertSnippet`, (snippetBody: ISnippet['body']) => {
@@ -65,7 +66,7 @@ export function activate(extensionContext: ExtensionContext) {
 	}
 
 	const snippetsProvider = new SnippetProvider(path.join(extensionContext.logPath, '..', '..', '..', '..', 'User', 'snippets'), config);
-	const refresh = commands.registerCommand('snippets-view.tree.refresh', () => snippetsProvider.refresh());
+	const refresh = commands.registerCommand('snippets-view.tree.refresh', () => snippetsProvider.refresh(true));
 	const snippetsTree = window.registerTreeDataProvider(`${EXTENSION_NAME}.tree`, snippetsProvider);
 
 	function updateConfig(e: ConfigurationChangeEvent) {
@@ -75,13 +76,17 @@ export function activate(extensionContext: ExtensionContext) {
 		if (e.affectsConfiguration(`${EXTENSION_NAME}.flatten`)) {
 			config.flatten = newConfig.flatten;
 			snippetsProvider.updateConfig(config);
-			snippetsProvider.refresh();
-		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.focusEditorAfterInsertion`)) {
-			config.focusEditorAfterInsertion = newConfig.focusEditorAfterInsertion;
+			snippetsProvider.refresh(true);
 		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.excludeRegex`)) {
 			updateExcludeRegex(newConfig.excludeRegex);
 			snippetsProvider.updateConfig(config);
-			snippetsProvider.refresh();
+			snippetsProvider.refresh(false);
+		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.focusEditorAfterInsertion`)) {
+			config.focusEditorAfterInsertion = newConfig.focusEditorAfterInsertion;
+		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.onlyForActiveEditor`)) {
+			config.onlyForActiveEditor = newConfig.onlyForActiveEditor;
+			snippetsProvider.updateConfig(config);
+			snippetsProvider.refresh(true);
 		}
 	}
 	function updateExcludeRegex(newRegex: string) {
@@ -94,6 +99,18 @@ export function activate(extensionContext: ExtensionContext) {
 		} else if (newRegex === '') {
 			config._excludeRegex = undefined;
 		}
+	}
+
+	let onDidChangeActiveTextEditor;
+	if (config.onlyForActiveEditor) {
+		onDidChangeActiveTextEditor = window.onDidChangeActiveTextEditor(textEditor => {
+			if (config.onlyForActiveEditor) {
+				config._activeTextEditor = textEditor;
+				snippetsProvider.updateConfig(config);
+				snippetsProvider.refresh(false);
+			}
+		});
+		extensionContext.subscriptions.push(onDidChangeActiveTextEditor);
 	}
 
 	extensionContext.subscriptions.push(workspace.onDidChangeConfiguration(updateConfig, EXTENSION_NAME));
