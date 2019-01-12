@@ -15,6 +15,7 @@ export interface IConfig {
 	focusEditorAfterInsertion: boolean;
 	flatten: boolean;
 	onlyForActiveEditor: boolean;
+	showScope: boolean;
 	excludeRegex: 'string';
 
 	_excludeRegex?: RegExp;

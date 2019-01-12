@@ -83,6 +83,10 @@ export function activate(extensionContext: ExtensionContext) {
 			snippetsProvider.refresh(false);
 		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.focusEditorAfterInsertion`)) {
 			config.focusEditorAfterInsertion = newConfig.focusEditorAfterInsertion;
+		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.showScope`)) {
+			config.showScope = newConfig.showScope;
+			snippetsProvider.updateConfig(config);
+			snippetsProvider.refresh(false);
 		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.onlyForActiveEditor`)) {
 			config.onlyForActiveEditor = newConfig.onlyForActiveEditor;
 
@@ -110,6 +114,14 @@ export function activate(extensionContext: ExtensionContext) {
 		}
 	}
 	function onChangeActiveTextEditor(textEditor: TextEditor | undefined) {
+		if (!config._activeTextEditor && !textEditor) {
+			return;
+		}
+		if (config._activeTextEditor && textEditor) {
+			if (config._activeTextEditor.document.languageId === textEditor.document.languageId) {
+				return;
+			}
+		}
 		config._activeTextEditor = textEditor;
 		snippetsProvider.updateConfig(config);
 		snippetsProvider.refresh(false);

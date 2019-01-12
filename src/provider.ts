@@ -224,6 +224,9 @@ export class Snippet extends TreeItem {
 		if (this.snippetFile.isJSON && !this.config.flatten) {
 			return;
 		}
+		if (!this.config.showScope) {
+			return;
+		}
 		return this.scope.join(',');
 	}
 

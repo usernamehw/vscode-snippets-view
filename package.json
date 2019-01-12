@@ -60,6 +60,11 @@
 					"type": "boolean",
 					"default": false,
 					"description": "When `true` – shows only snippets that match active text editor language and the global snippets."
+				},
+				"snippets-view.showScope": {
+					"type": "boolean",
+					"default": true,
+					"description": "When `true` – shows scope (languages) that snippet designed to be applied to."
 				}
 			}
 		},

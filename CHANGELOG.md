@@ -1,4 +1,10 @@
-## 0.1.8
+## 0.1.1 `12 Jan 2019`
+
+- ✨ Add a setting `showScope`
+- 🐛 Changing `onlyForActiveEditor` should update active editor and create/dispose event listener
+- 🐛 When activeTextEditor changes - event should not be sent if language was the same
+
+## 0.1.0 `11 Jan 2019`
 
 - ✨ Add a setting to show only snippets for active text editor `onlyForActiveEditor` (works well with `flatten`)
 - 🐛 Delay for opening snippets file should be only in case of not yet loaded symbols list
