@@ -1,6 +1,6 @@
 'use strict';
 import * as path from 'path';
-import { commands, ConfigurationChangeEvent, DocumentSymbol, ExtensionContext, Selection, TextDocument, Uri, window, workspace } from 'vscode';
+import { commands, ConfigurationChangeEvent, Disposable, DocumentSymbol, ExtensionContext, Selection, TextDocument, TextEditor, Uri, window, workspace } from 'vscode';
 import * as vscode from 'vscode';
 
 import { Snippet, SnippetFile, SnippetProvider } from './provider';
@@ -85,6 +85,15 @@ export function activate(extensionContext: ExtensionContext) {
 			config.focusEditorAfterInsertion = newConfig.focusEditorAfterInsertion;
 		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.onlyForActiveEditor`)) {
 			config.onlyForActiveEditor = newConfig.onlyForActiveEditor;
+
+			if (newConfig.onlyForActiveEditor) {
+				onDidChangeActiveTextEditor = window.onDidChangeActiveTextEditor(onChangeActiveTextEditor);
+				config._activeTextEditor = window.activeTextEditor;
+			} else {
+				onDidChangeActiveTextEditor.dispose();
+				config._activeTextEditor = undefined;
+			}
+
 			snippetsProvider.updateConfig(config);
 			snippetsProvider.refresh(true);
 		}
@@ -100,16 +109,16 @@ export function activate(extensionContext: ExtensionContext) {
 			config._excludeRegex = undefined;
 		}
 	}
+	function onChangeActiveTextEditor(textEditor: TextEditor | undefined) {
+		config._activeTextEditor = textEditor;
+		snippetsProvider.updateConfig(config);
+		snippetsProvider.refresh(false);
+	}
 
-	let onDidChangeActiveTextEditor;
+	let onDidChangeActiveTextEditor: Disposable;
+
 	if (config.onlyForActiveEditor) {
-		onDidChangeActiveTextEditor = window.onDidChangeActiveTextEditor(textEditor => {
-			if (config.onlyForActiveEditor) {
-				config._activeTextEditor = textEditor;
-				snippetsProvider.updateConfig(config);
-				snippetsProvider.refresh(false);
-			}
-		});
+		onDidChangeActiveTextEditor = window.onDidChangeActiveTextEditor(onChangeActiveTextEditor);
 		extensionContext.subscriptions.push(onDidChangeActiveTextEditor);
 	}
 
