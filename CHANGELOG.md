@@ -1,3 +1,7 @@
+## 0.1.2 `14 Jan 2019`
+
+- 🐛 Absence of `.vscode` folder should not throw an error
+
 ## 0.1.1 `12 Jan 2019`
 
 - ✨ Add a setting `showScope`
@@ -7,7 +11,7 @@
 ## 0.1.0 `11 Jan 2019`
 
 - ✨ Add a setting to show only snippets for active text editor `onlyForActiveEditor` (works well with `flatten`)
-- 🐛 Delay for opening snippets file should be only in case of not yet loaded symbols list
+- 🐛 Delay for opening snippets file should only be in case of not yet loaded symbols list
 
 ## 0.0.8 `07 Jan 2019`
 

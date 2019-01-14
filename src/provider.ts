@@ -6,6 +6,7 @@ import * as vscode from 'vscode';
 
 import { EXTENSION_NAME } from './extension';
 import { IConfig, ISnippetFile, SessionCache, SnippetFileExtensions } from './types';
+import { dirExists } from './utils';
 
 export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> {
 
@@ -103,7 +104,10 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 			let projectLevelSnippets: SnippetFile[] = [];
 			if (workspaceFolders) {
 				projectLevelSnippets = Array.prototype.concat.apply([], await Promise.all(workspaceFolders.map(async folder => {
-					return this.getSnippetFilesFromDirectory(path.join(folder.uri.fsPath, '.vscode'), [SnippetFileExtensions.codeSnippets]);
+					const vscodeDirPath = path.join(folder.uri.fsPath, '.vscode');
+					const isDirExists = await dirExists(vscodeDirPath);
+					if (!isDirExists) return [];
+					return this.getSnippetFilesFromDirectory(vscodeDirPath, [SnippetFileExtensions.codeSnippets]);
 				})));
 			}
 
