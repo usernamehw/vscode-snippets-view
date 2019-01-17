@@ -16,7 +16,7 @@ export interface IConfig {
 	flatten: boolean;
 	onlyForActiveEditor: boolean;
 	showScope: boolean;
-	excludeRegex: 'string';
+	excludeRegex: string;
 
 	_excludeRegex?: RegExp;
 	_activeTextEditor?: TextEditor;
