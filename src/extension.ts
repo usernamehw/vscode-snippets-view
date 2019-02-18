@@ -66,8 +66,11 @@ export function activate(extensionContext: ExtensionContext) {
 	}
 
 	const snippetsProvider = new SnippetProvider(path.join(extensionContext.logPath, '..', '..', '..', '..', 'User', 'snippets'), config);
-	const refresh = commands.registerCommand('snippets-view.tree.refresh', () => snippetsProvider.refresh(true));
-	const snippetsTree = window.registerTreeDataProvider(`${EXTENSION_NAME}.tree`, snippetsProvider);
+	const refresh = commands.registerCommand(`${EXTENSION_NAME}.tree.refresh`, () => snippetsProvider.refresh(true));
+	const snippetsView = vscode.window.createTreeView(`${EXTENSION_NAME}.tree`, {
+		treeDataProvider: snippetsProvider,
+		showCollapseAll: true,
+	});
 
 	function updateConfig(e: ConfigurationChangeEvent) {
 		if (!e.affectsConfiguration(EXTENSION_NAME)) return;
@@ -135,7 +138,7 @@ export function activate(extensionContext: ExtensionContext) {
 	}
 
 	extensionContext.subscriptions.push(workspace.onDidChangeConfiguration(updateConfig, EXTENSION_NAME));
-	extensionContext.subscriptions.push(insertSnippet, snippetsTree, refresh, openSnippetsFile);
+	extensionContext.subscriptions.push(insertSnippet, snippetsView, refresh, openSnippetsFile);
 }
 
 export function deactivate() { }
