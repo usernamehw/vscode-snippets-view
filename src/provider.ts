@@ -10,7 +10,7 @@ import { dirExists } from './utils';
 
 export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> {
 
-	private _onDidChangeTreeData: EventEmitter<Snippet | undefined> = new EventEmitter<Snippet | undefined>();
+	private readonly _onDidChangeTreeData: EventEmitter<Snippet | undefined> = new EventEmitter<Snippet | undefined>();
 	readonly onDidChangeTreeData: Event<Snippet | undefined> = this._onDidChangeTreeData.event;
 
 	constructor(
@@ -176,7 +176,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		});
 	}
 	// = () => to bind `this`
-	private filterSnippets = (snippet: Snippet): boolean => {
+	private readonly filterSnippets = (snippet: Snippet): boolean => {
 		// Exclude regex matching snippet key
 		if (this.config._excludeRegex && this.config._excludeRegex.test(snippet.label)) {
 			return false;
@@ -200,7 +200,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		return n2 - n1;
 	}
 
-	private static sessionCache: SessionCache = {
+	private static readonly sessionCache: SessionCache = {
 		snippetsFromFile: {},
 		flattenedSnippets: [],
 		allSnippetFiles: [],
