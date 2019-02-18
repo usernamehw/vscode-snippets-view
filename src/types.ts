@@ -12,6 +12,7 @@ export interface ISnippetFile {
 	[key: string]: ISnippet;
 }
 export interface IConfig {
+	includeExtensionSnippets: boolean;
 	focusEditorAfterInsertion: boolean;
 	flatten: boolean;
 	onlyForActiveEditor: boolean;

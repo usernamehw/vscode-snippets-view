@@ -69,6 +69,7 @@ export function activate(extensionContext: ExtensionContext) {
 	const refresh = commands.registerCommand(`${EXTENSION_NAME}.tree.refresh`, () => snippetsProvider.refresh(true));
 	const snippetsView = vscode.window.createTreeView(`${EXTENSION_NAME}.tree`, {
 		treeDataProvider: snippetsProvider,
+		// @ts-ignore
 		showCollapseAll: true,
 	});
 
@@ -103,6 +104,10 @@ export function activate(extensionContext: ExtensionContext) {
 
 			snippetsProvider.updateConfig(config);
 			snippetsProvider.refresh(true);
+		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.includeExtensionSnippets`)) {
+			config.includeExtensionSnippets = newConfig.includeExtensionSnippets;
+			snippetsProvider.updateConfig(config);
+			snippetsProvider.refresh(true);
 		}
 	}
 	function updateExcludeRegex(newRegex: string) {
@@ -127,7 +132,11 @@ export function activate(extensionContext: ExtensionContext) {
 		}
 		config._activeTextEditor = textEditor;
 		snippetsProvider.updateConfig(config);
-		snippetsProvider.refresh(false);
+		if (config.includeExtensionSnippets) {
+			snippetsProvider.refresh(true);
+		} else {
+			snippetsProvider.refresh(false);
+		}
 	}
 
 	let onDidChangeActiveTextEditor: Disposable;

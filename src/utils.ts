@@ -15,3 +15,5 @@ export function dirExists(path: string): Promise<boolean> {
 		}
 	});
 }
+
+export const isObject = (item: any): item is object => typeof item === 'object' && item !== null;

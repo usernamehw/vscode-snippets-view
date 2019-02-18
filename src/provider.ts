@@ -6,7 +6,9 @@ import * as vscode from 'vscode';
 
 import { EXTENSION_NAME } from './extension';
 import { IConfig, ISnippetFile, SessionCache, SnippetFileExtensions } from './types';
-import { dirExists } from './utils';
+import { dirExists, isObject } from './utils';
+
+const extensionFileDelimiter = ' => ';
 
 export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> {
 
@@ -71,7 +73,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		}
 	}
 
-	private getSnippetFilesFromDirectory(absoluteDirPath: string, includeExtensions: SnippetFileExtensions[]): Promise<SnippetFile[]> {
+	private getSnippetFilesFromDirectory(absoluteDirPath: string, fileExtensions: SnippetFileExtensions[], fromExtension?: boolean): Promise<SnippetFile[]> {
 		return new Promise((resolve, reject) => {
 			fs.readdir(absoluteDirPath, (err, files) => {
 				if (err) {
@@ -84,11 +86,11 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 					const extname = path.extname(file);
 					const filename = path.parse(file).name;
 					const absolutePath = path.join(absoluteDirPath, file);
-					if (includeExtensions.indexOf(extname as SnippetFileExtensions) !== -1) {
+					if (fileExtensions.indexOf(extname as SnippetFileExtensions) !== -1) {
 						if (extname === SnippetFileExtensions.json) {
-							snippets.push(new SnippetFile(filename, absolutePath, true));
+							snippets.push(new SnippetFile(filename, absolutePath, true, fromExtension));
 						} else {
-							snippets.push(new SnippetFile(filename, absolutePath, false));
+							snippets.push(new SnippetFile(filename, absolutePath, false, fromExtension));
 						}
 					}
 				});
@@ -110,9 +112,13 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 					return this.getSnippetFilesFromDirectory(vscodeDirPath, [SnippetFileExtensions.codeSnippets]);
 				})));
 			}
+			let extensionContributedSnippets: SnippetFile[] = [];
+			if (this.config.includeExtensionSnippets) {
+				extensionContributedSnippets = this.getExtensionSnippetFiles();
+			}
 
 			const globalLevelSnippets: SnippetFile[] = await this.getSnippetFilesFromDirectory(this.snippetsDirPath, [SnippetFileExtensions.json, SnippetFileExtensions.codeSnippets]);
-			return resolve(projectLevelSnippets.concat(globalLevelSnippets));
+			return resolve(projectLevelSnippets.concat(globalLevelSnippets, extensionContributedSnippets));
 		});
 	}
 
@@ -128,6 +134,29 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		const snippetFiles = await this.getAllSnippetFiles();
 		const allSnippets = await this.getAllSnippetFilesContents(snippetFiles);
 		return allSnippets;
+	}
+
+	private getExtensionSnippetFiles(): SnippetFile[] {
+		const extensionSnippets: SnippetFile[] = [];
+		vscode.extensions.all.forEach(ext => {
+			const contributes = ext.packageJSON && ext.packageJSON.contributes;
+			if (!isObject(contributes)) {
+				return;
+			}
+			// @ts-ignore
+			const snippets = contributes.snippets;
+			if (!Array.isArray(snippets)) {
+				return;
+			}
+			const extensionLocation = ext.packageJSON.extensionLocation;
+			if (!extensionLocation) {
+				return;
+			}
+			snippets.forEach(snippet => {
+				extensionSnippets.push(new SnippetFile(`${ext.id}${extensionFileDelimiter}${snippet.language}`, path.join(extensionLocation.fsPath, snippet.path), true, true));
+			});
+		});
+		return extensionSnippets;
 	}
 
 	private getSnippetFileContents(snippetFile: SnippetFile): Promise<Snippet[]> {
@@ -218,6 +247,10 @@ export class Snippet extends TreeItem {
 		readonly config: IConfig,
 	) {
 		super(label);
+
+		if (snippetFile.isFromExtension) {
+			this.scope = [snippetFile.label.split(extensionFileDelimiter)[1]];
+		}
 	}
 
 	get tooltip() {
@@ -244,11 +277,16 @@ export class SnippetFile extends TreeItem {
 		readonly label: string,
 		readonly absolutePath: string,
 		readonly isJSON: boolean,
+		readonly isFromExtension?: boolean,
 	) {
 		super(label);
 
 		this.resourceUri = Uri.file(absolutePath);
-		this.iconPath = ThemeIcon.File;
+		if (this.isFromExtension) {
+			this.iconPath = ThemeIcon.Folder;
+		} else {
+			this.iconPath = ThemeIcon.File;
+		}
 	}
 
 	contextValue = 'snippetFile';

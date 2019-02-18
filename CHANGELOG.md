@@ -1,3 +1,8 @@
+## 0.2.0 `18 Feb 2019`
+
+- ✨ Button `Collapse All`
+- ✨ Prototype extension contributed snippets (opt-in `snippets-view.includeExtensionSnippets`)
+
 ## 0.1.2 `14 Jan 2019`
 
 - 🐛 Absence of `.vscode` folder should not throw an error

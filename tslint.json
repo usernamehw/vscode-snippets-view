@@ -206,7 +206,7 @@
 		],
 		"no-unsafe-any": true,
 		"no-unsafe-finally": true,
-		"no-void-expression": true,
+		"no-void-expression": false,
 		"restrict-plus-operands": true,
 		"strict-boolean-expressions": false,
 		"binary-expression-operand-order": true,
