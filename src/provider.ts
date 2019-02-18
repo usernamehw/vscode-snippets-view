@@ -10,6 +10,62 @@ import { dirExists, isObject } from './utils';
 
 const extensionFileDelimiter = ' => ';
 
+export class Snippet extends TreeItem {
+	readonly collapsibleState = TreeItemCollapsibleState.None;
+
+	constructor(
+		readonly label: string,
+		readonly scope: string[],
+		readonly command: Command,
+		readonly snippetFile: SnippetFile,
+		readonly config: IConfig,
+	) {
+		super(label);
+
+		if (snippetFile.isFromExtension) {
+			this.scope = [snippetFile.label.split(extensionFileDelimiter)[1]];
+		}
+	}
+
+	get tooltip() {
+		return this.scope.join(',');
+	}
+
+	get description() {
+		if (this.snippetFile.isJSON && !this.config.flatten) {
+			return;
+		}
+		if (!this.config.showScope) {
+			return;
+		}
+		return this.scope.join(',');
+	}
+
+	contextValue = 'snippet';
+}
+
+export class SnippetFile extends TreeItem {
+	readonly collapsibleState = TreeItemCollapsibleState.Expanded;
+
+	constructor(
+		readonly label: string,
+		readonly absolutePath: string,
+		readonly isJSON: boolean,
+		readonly isFromExtension?: boolean,
+	) {
+		super(label);
+
+		this.resourceUri = Uri.file(absolutePath);
+		if (this.isFromExtension) {
+			this.iconPath = ThemeIcon.Folder;
+		} else {
+			this.iconPath = ThemeIcon.File;
+		}
+	}
+
+	contextValue = 'snippetFile';
+}
+
 export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> {
 
 	private readonly _onDidChangeTreeData: EventEmitter<Snippet | undefined> = new EventEmitter<Snippet | undefined>();
@@ -234,60 +290,4 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		flattenedSnippets: [],
 		allSnippetFiles: [],
 	};
-}
-
-export class Snippet extends TreeItem {
-	readonly collapsibleState = TreeItemCollapsibleState.None;
-
-	constructor(
-		readonly label: string,
-		readonly scope: string[],
-		readonly command: Command,
-		readonly snippetFile: SnippetFile,
-		readonly config: IConfig,
-	) {
-		super(label);
-
-		if (snippetFile.isFromExtension) {
-			this.scope = [snippetFile.label.split(extensionFileDelimiter)[1]];
-		}
-	}
-
-	get tooltip() {
-		return this.scope.join(',');
-	}
-
-	get description() {
-		if (this.snippetFile.isJSON && !this.config.flatten) {
-			return;
-		}
-		if (!this.config.showScope) {
-			return;
-		}
-		return this.scope.join(',');
-	}
-
-	contextValue = 'snippet';
-}
-
-export class SnippetFile extends TreeItem {
-	readonly collapsibleState = TreeItemCollapsibleState.Expanded;
-
-	constructor(
-		readonly label: string,
-		readonly absolutePath: string,
-		readonly isJSON: boolean,
-		readonly isFromExtension?: boolean,
-	) {
-		super(label);
-
-		this.resourceUri = Uri.file(absolutePath);
-		if (this.isFromExtension) {
-			this.iconPath = ThemeIcon.Folder;
-		} else {
-			this.iconPath = ThemeIcon.File;
-		}
-	}
-
-	contextValue = 'snippetFile';
 }
