@@ -132,7 +132,7 @@ export function activate(extensionContext: ExtensionContext) {
 		}
 		config._activeTextEditor = textEditor;
 		snippetsProvider.updateConfig(config);
-		if (config.includeExtensionSnippets) {
+		if (config.includeExtensionSnippets && !config.flatten) {
 			snippetsProvider.refresh(true);
 		} else {
 			snippetsProvider.refresh(false);
