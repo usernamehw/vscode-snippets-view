@@ -9,7 +9,7 @@ import { IConfig, ISnippet } from './types';
 export const EXTENSION_NAME = 'snippets-view';
 
 export function activate(extensionContext: ExtensionContext) {
-	const config = { ...workspace.getConfiguration(EXTENSION_NAME) } as any as IConfig;
+	const config = JSON.parse(JSON.stringify(workspace.getConfiguration(EXTENSION_NAME))) as IConfig;
 	config._activeTextEditor = window.activeTextEditor;
 	updateExcludeRegex(config.excludeRegex);
 
@@ -76,7 +76,7 @@ export function activate(extensionContext: ExtensionContext) {
 	function updateConfig(e: ConfigurationChangeEvent) {
 		if (!e.affectsConfiguration(EXTENSION_NAME)) return;
 
-		const newConfig = workspace.getConfiguration(EXTENSION_NAME) as any as IConfig;
+		const newConfig = JSON.parse(JSON.stringify(workspace.getConfiguration(EXTENSION_NAME))) as IConfig;
 		if (e.affectsConfiguration(`${EXTENSION_NAME}.flatten`)) {
 			config.flatten = newConfig.flatten;
 			snippetsProvider.updateConfig(config);
