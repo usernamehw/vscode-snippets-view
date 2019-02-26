@@ -73,6 +73,55 @@ export function activate(extensionContext: ExtensionContext) {
 		showCollapseAll: true,
 	});
 
+	const snippetFromSelection = vscode.commands.registerTextEditorCommand(`${EXTENSION_NAME}.createSnippetFromSelection`, editor => {
+		const { document } = editor;
+		const { selection } = editor;
+		const tabSize = editor.options.tabSize as number;
+		const body = [];
+		for (let i = selection.start.line; i <= selection.end.line; i++) {
+			const line = document.lineAt(i);
+			body.push(snippetizeLine(line.text, tabSize));
+		}
+		const result: {
+			untitled: any;
+		} = {
+			untitled: {
+				scope: editor.document.languageId,
+				prefix: '',
+				body,
+			},
+		};
+		vscode.workspace.openTextDocument({ language: 'jsonc' }).then(newDocument => {
+			vscode.window.showTextDocument(newDocument).then(newEditor => {
+				newEditor.edit(builder => {
+					const position = new vscode.Position(0, 0);
+					builder.insert(position, JSON.stringify(result, undefined, '\t'));
+				});
+			});
+		});
+	});
+	const TAB_SYMBOL = '	';
+	const SPACE_SYMBOL = ' ';
+	const indentTabRegex = new RegExp(`^${TAB_SYMBOL}+`);
+	const indentSpaceRegex = new RegExp(`^${SPACE_SYMBOL}+`);
+	function snippetizeLine(text: string, tabSize: number): string {
+		let result = text;
+
+		const indentTabMatch = result.match(indentTabRegex);
+		if (indentTabMatch) {
+			result = result.replace(indentTabRegex, '\t'.repeat(indentTabMatch[0].length));
+		}
+
+		const indentSpaceMatch = result.match(indentSpaceRegex);
+		if (indentSpaceMatch) {
+			result = result.replace(indentSpaceRegex, '\t'.repeat(indentSpaceMatch[0].length / tabSize));
+		}
+
+		return result
+			.replace(/\\/g, '\\\\')
+			.replace(/[\$]/g, '\\$');
+	}
+
 	function updateConfig(e: ConfigurationChangeEvent) {
 		if (!e.affectsConfiguration(EXTENSION_NAME)) return;
 
@@ -147,7 +196,7 @@ export function activate(extensionContext: ExtensionContext) {
 	}
 
 	extensionContext.subscriptions.push(workspace.onDidChangeConfiguration(updateConfig, EXTENSION_NAME));
-	extensionContext.subscriptions.push(insertSnippet, snippetsView, refresh, openSnippetsFile);
+	extensionContext.subscriptions.push(insertSnippet, snippetsView, refresh, openSnippetsFile, snippetFromSelection);
 }
 
 export function deactivate() { }

@@ -19,6 +19,12 @@ Possible usages of this extension:
 
 	Entry in context menu should navigate to the snippet definition.
 
+## Additional commands
+
+### Create snippet from selection
+
+`snippets-view.createSnippetFromSelection`
+
 ## TODO
 
 - [x] Refresh button

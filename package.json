@@ -33,7 +33,8 @@
 		"Other"
 	],
 	"activationEvents": [
-		"onView:snippets-view.tree"
+		"onView:snippets-view.tree",
+		"onCommand:snippets-view.createSnippetFromSelection"
 	],
 	"main": "./dist/extension",
 	"contributes": {
@@ -102,6 +103,11 @@
 			{
 				"command": "snippets-view.openSnippetsFile",
 				"title": "Open Snippets File",
+				"category": "Snippets View"
+			},
+			{
+				"command": "snippets-view.createSnippetFromSelection",
+				"title": "Create snippet from selection",
 				"category": "Snippets View"
 			}
 		],

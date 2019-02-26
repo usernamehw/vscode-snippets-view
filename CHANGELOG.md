@@ -1,3 +1,7 @@
+## 0.2.1 `26 Feb 2019`
+
+- ✨ Create snippet from selection `snippets-view.createSnippetFromSelection`
+
 ## 0.2.0 `18 Feb 2019`
 
 - ✨ Button `Collapse All`
