@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as JSON5 from 'json5';
 import * as path from 'path';
-import { Command, Event, EventEmitter, TextEditor, ThemeIcon, TreeDataProvider, TreeItem, TreeItemCollapsibleState, Uri, window, workspace } from 'vscode';
 import * as vscode from 'vscode';
 
 import { EXTENSION_NAME } from './extension';
@@ -10,13 +9,13 @@ import { dirExists, isObject } from './utils';
 
 const extensionFileDelimiter = ' => ';
 
-export class Snippet extends TreeItem {
-	readonly collapsibleState = TreeItemCollapsibleState.None;
+export class Snippet extends vscode.TreeItem {
+	readonly collapsibleState = vscode.TreeItemCollapsibleState.None;
 
 	constructor(
 		readonly label: string,
 		readonly scope: string[],
-		readonly command: Command,
+		readonly command: vscode.Command,
 		readonly snippetFile: SnippetFile,
 		readonly config: IConfig,
 	) {
@@ -44,8 +43,8 @@ export class Snippet extends TreeItem {
 	contextValue = 'snippet';
 }
 
-export class SnippetFile extends TreeItem {
-	readonly collapsibleState = TreeItemCollapsibleState.Expanded;
+export class SnippetFile extends vscode.TreeItem {
+	readonly collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
 
 	constructor(
 		readonly label: string,
@@ -55,21 +54,21 @@ export class SnippetFile extends TreeItem {
 	) {
 		super(label);
 
-		this.resourceUri = Uri.file(absolutePath);
+		this.resourceUri = vscode.Uri.file(absolutePath);
 		if (this.isFromExtension) {
-			this.iconPath = ThemeIcon.Folder;
+			this.iconPath = vscode.ThemeIcon.Folder;
 		} else {
-			this.iconPath = ThemeIcon.File;
+			this.iconPath = vscode.ThemeIcon.File;
 		}
 	}
 
 	contextValue = 'snippetFile';
 }
 
-export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> {
+export class SnippetProvider implements vscode.TreeDataProvider<Snippet | SnippetFile> {
 
-	private readonly _onDidChangeTreeData: EventEmitter<Snippet | undefined> = new EventEmitter<Snippet | undefined>();
-	readonly onDidChangeTreeData: Event<Snippet | undefined> = this._onDidChangeTreeData.event;
+	private readonly _onDidChangeTreeData: vscode.EventEmitter<Snippet | undefined> = new vscode.EventEmitter<Snippet | undefined>();
+	readonly onDidChangeTreeData: vscode.Event<Snippet | undefined> = this._onDidChangeTreeData.event;
 
 	constructor(
 		private readonly snippetsDirPath: string,
@@ -90,7 +89,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		// console.log('💜 :: Provider :: updateConfig');
 	}
 
-	getTreeItem(element: Snippet | SnippetFile): TreeItem {
+	getTreeItem(element: Snippet | SnippetFile): vscode.TreeItem {
 		return element;
 	}
 
@@ -133,7 +132,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		return new Promise((resolve, reject) => {
 			fs.readdir(absoluteDirPath, (err, files) => {
 				if (err) {
-					window.showErrorMessage(`Error reading directory ${absoluteDirPath} \n ${err.message}`);
+					vscode.window.showErrorMessage(`Error reading directory ${absoluteDirPath} \n ${err.message}`);
 					return reject([]);
 				}
 
@@ -158,7 +157,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 	private getAllSnippetFiles(): Promise<SnippetFile[]> {
 		// console.log('🔴 :: Find all Snippet Files');
 		return new Promise(async (resolve, reject) => {
-			const workspaceFolders = workspace.workspaceFolders;
+			const workspaceFolders = vscode.workspace.workspaceFolders;
 			let projectLevelSnippets: SnippetFile[] = [];
 			if (workspaceFolders) {
 				projectLevelSnippets = Array.prototype.concat.apply([], await Promise.all(workspaceFolders.map(async folder => {
@@ -220,7 +219,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 		return new Promise((resolve, reject) => {
 			fs.readFile(snippetFile.absolutePath, 'utf8', (err, contents) => {
 				if (err) {
-					window.showErrorMessage(`Error reading file ${snippetFile.absolutePath} \n ${err.message}`);
+					vscode.window.showErrorMessage(`Error reading file ${snippetFile.absolutePath} \n ${err.message}`);
 					return reject([]);
 				}
 
@@ -232,7 +231,7 @@ export class SnippetProvider implements TreeDataProvider<Snippet | SnippetFile> 
 				try {
 					parsedSnippets = JSON5.parse(contents);
 				} catch (err) {
-					window.showErrorMessage(`JSON parsing of snippet file ${snippetFile.absolutePath} failed`);
+					vscode.window.showErrorMessage(`JSON parsing of snippet file ${snippetFile.absolutePath} failed`);
 					return reject([]);
 				}
 
