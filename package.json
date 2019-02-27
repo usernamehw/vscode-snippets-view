@@ -109,6 +109,11 @@
 				"command": "snippets-view.createSnippetFromSelection",
 				"title": "Create snippet from selection",
 				"category": "Snippets View"
+			},
+			{
+				"command": "snippets-view.toggleOnlyForActiveEditor",
+				"title": "Toggle onlyForActiveEditor",
+				"category": "Snippets View"
 			}
 		],
 		"menus": {
@@ -117,6 +122,10 @@
 					"command": "snippets-view.tree.refresh",
 					"when": "view == snippets-view.tree",
 					"group": "navigation"
+				},
+				{
+					"command": "snippets-view.toggleOnlyForActiveEditor",
+					"when": "view == snippets-view.tree"
 				}
 			],
 			"view/item/context": [

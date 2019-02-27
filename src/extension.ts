@@ -40,6 +40,11 @@ export function activate(extensionContext: ExtensionContext) {
 			});
 		});
 	});
+	const toggleOnlyForActiveEditor = commands.registerCommand(`${EXTENSION_NAME}.toggleOnlyForActiveEditor`, () => {
+		const settings = workspace.getConfiguration(undefined, null);// tslint:disable-line
+		const currentSettingValue = settings.get(`${EXTENSION_NAME}.onlyForActiveEditor`);
+		settings.update(`${EXTENSION_NAME}.onlyForActiveEditor`, !currentSettingValue, true);
+	});
 
 	async function getSymbols(document: TextDocument): Promise<DocumentSymbol[]> {
 		return new Promise(async (resolve, reject) => {
@@ -196,7 +201,7 @@ export function activate(extensionContext: ExtensionContext) {
 	}
 
 	extensionContext.subscriptions.push(workspace.onDidChangeConfiguration(updateConfig, EXTENSION_NAME));
-	extensionContext.subscriptions.push(insertSnippet, snippetsView, refresh, openSnippetsFile, snippetFromSelection);
+	extensionContext.subscriptions.push(insertSnippet, snippetsView, refresh, openSnippetsFile, snippetFromSelection, toggleOnlyForActiveEditor);
 }
 
 export function deactivate() { }
