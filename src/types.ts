@@ -29,7 +29,7 @@ export enum SnippetFileExtensions {
 export interface SessionCache {
 	flattenedSnippets: Snippet[];
 	snippetsFromFile: {
-		[key: string]: Snippet[];
+		[absolutePath: string]: Snippet[];
 	};
 	allSnippetFiles: SnippetFile[];
 }
