@@ -85,7 +85,13 @@ export function activate(extensionContext: ExtensionContext) {
 		const body = [];
 		for (let i = selection.start.line; i <= selection.end.line; i++) {
 			const line = document.lineAt(i);
-			body.push(snippetizeLine(line.text, tabSize));
+			let lineText = line.text;
+			if (i === selection.start.line) {
+				lineText = lineText.slice(selection.start.character);
+			} else if (i === selection.end.line) {
+				lineText = lineText.slice(0, selection.end.character);
+			}
+			body.push(snippetizeLine(lineText, tabSize));
 		}
 		const result: {
 			untitled: any;

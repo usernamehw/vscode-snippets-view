@@ -1,3 +1,8 @@
+## 0.2.2 `02 Mar 2019`
+
+- ✨ Added menu entry to quickly switch setting `onlyForActiveEditor`
+- 🐛 Create snippet from selection should care about start/end selection characters and not just be using the entire lines.
+
 ## 0.2.1 `26 Feb 2019`
 
 - ✨ Create snippet from selection `snippets-view.createSnippetFromSelection`
