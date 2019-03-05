@@ -114,7 +114,12 @@
 			},
 			{
 				"command": "snippets-view.toggleOnlyForActiveEditor",
-				"title": "Toggle onlyForActiveEditor",
+				"title": "Toggle `onlyForActiveEditor`",
+				"category": "Snippets View"
+			},
+			{
+				"command": "snippets-view.toggleFlatten",
+				"title": "Toggle `flatten`",
 				"category": "Snippets View"
 			}
 		],
@@ -127,6 +132,10 @@
 				},
 				{
 					"command": "snippets-view.toggleOnlyForActiveEditor",
+					"when": "view == snippets-view.tree"
+				},
+				{
+					"command": "snippets-view.toggleFlatten",
 					"when": "view == snippets-view.tree"
 				}
 			],

@@ -45,6 +45,11 @@ export function activate(extensionContext: ExtensionContext) {
 		const currentSettingValue = settings.get(`${EXTENSION_NAME}.onlyForActiveEditor`);
 		settings.update(`${EXTENSION_NAME}.onlyForActiveEditor`, !currentSettingValue, true);
 	});
+	const toggleFlatten = commands.registerCommand(`${EXTENSION_NAME}.toggleFlatten`, () => {
+		const settings = workspace.getConfiguration(undefined, null);// tslint:disable-line
+		const currentSettingValue = settings.get(`${EXTENSION_NAME}.flatten`);
+		settings.update(`${EXTENSION_NAME}.flatten`, !currentSettingValue, true);
+	});
 
 	async function getSymbols(document: TextDocument): Promise<DocumentSymbol[]> {
 		return new Promise(async (resolve, reject) => {
@@ -207,7 +212,7 @@ export function activate(extensionContext: ExtensionContext) {
 	}
 
 	extensionContext.subscriptions.push(workspace.onDidChangeConfiguration(updateConfig, EXTENSION_NAME));
-	extensionContext.subscriptions.push(insertSnippet, snippetsView, refresh, openSnippetsFile, snippetFromSelection, toggleOnlyForActiveEditor);
+	extensionContext.subscriptions.push(insertSnippet, snippetsView, refresh, openSnippetsFile, snippetFromSelection, toggleOnlyForActiveEditor, toggleFlatten);
 }
 
 export function deactivate() { }
