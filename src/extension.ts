@@ -101,29 +101,27 @@ export function activate(extensionContext: ExtensionContext) {
 		if (body.length === 1) {
 			body = body[0];
 		}
-		const result: {
-			untitled: {
-				scope: string;
-				prefix: string;
-				body: string[] | string;
-				description?: string;
-			};
-		} = {
-			untitled: {
-				scope: editor.document.languageId,
-				prefix: '',
-				body,
-				description: '',
-			},
-		};
-		if (!config.snippetFromSelectionIncludeDescription) {
-			delete result.untitled.description;
+		if (Array.isArray(body)) {
+			body = body.map(line => JSON.stringify(line));
+			body[0] = `\t\t\t${body[0]}`;
+			body = `[\n${body.join(',\n\t\t\t')}\n\t\t]`;
+		} else {
+			body = `${JSON.stringify(body)}`;
 		}
+		let snippet = '{\n';
+		snippet += '\t"\${1:untitled}": {\n';
+		snippet += `\t\t"scope": "\${3:${editor.document.languageId}}",\n`;
+		snippet += '\t\t"prefix": "${2:${1:untitled}}",\n';
+		snippet += `\t\t"body": ${body},\n`;
+		if (config.snippetFromSelectionIncludeDescription) {
+			snippet += '\t\t"description": "${4:description}",\n';
+		}
+		snippet += '\t}\n';
+		snippet += '}';
 		vscode.workspace.openTextDocument({ language: 'jsonc' }).then(newDocument => {
-			vscode.window.showTextDocument(newDocument).then(newEditor => {
-				newEditor.edit(builder => {
-					const position = new vscode.Position(0, 0);
-					builder.insert(position, JSON.stringify(result, undefined, '\t'));
+			vscode.window.showTextDocument(newDocument).then(() => {
+				vscode.commands.executeCommand('editor.action.insertSnippet', {
+					snippet,
 				});
 			});
 		});
@@ -185,7 +183,7 @@ export function activate(extensionContext: ExtensionContext) {
 			config.includeExtensionSnippets = newConfig.includeExtensionSnippets;
 			snippetsProvider.updateConfig(config);
 			snippetsProvider.refresh(true);
-		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.snippetFromSelectionDescription`)) {
+		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.snippetFromSelectionIncludeDescription`)) {
 			config.snippetFromSelectionIncludeDescription = newConfig.snippetFromSelectionIncludeDescription;
 		}
 	}
