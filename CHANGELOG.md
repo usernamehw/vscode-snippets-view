@@ -1,3 +1,10 @@
+## 0.2.3 `05 Mar 2019`
+
+- ✨ Added menu entry to quickly switch setting `flatten`
+- ✨ Added setting `snippets-view.snippetFromSelectionIncludeDescription`
+- ✨ Use snippet while creating new snippet from selection
+- ✨ Created one-line-length snippet should be a string (not an array)
+
 ## 0.2.2 `02 Mar 2019`
 
 - ✨ Added menu entry to quickly switch setting `onlyForActiveEditor`
