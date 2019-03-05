@@ -99,14 +99,23 @@ export function activate(extensionContext: ExtensionContext) {
 			body.push(snippetizeLine(lineText, tabSize));
 		}
 		const result: {
-			untitled: any;
+			untitled: {
+				scope: string;
+				prefix: string;
+				body: string[];
+				description?: string;
+			};
 		} = {
 			untitled: {
 				scope: editor.document.languageId,
 				prefix: '',
 				body,
+				description: '',
 			},
 		};
+		if (!config.snippetFromSelectionIncludeDescription) {
+			delete result.untitled.description;
+		}
 		vscode.workspace.openTextDocument({ language: 'jsonc' }).then(newDocument => {
 			vscode.window.showTextDocument(newDocument).then(newEditor => {
 				newEditor.edit(builder => {
@@ -173,6 +182,8 @@ export function activate(extensionContext: ExtensionContext) {
 			config.includeExtensionSnippets = newConfig.includeExtensionSnippets;
 			snippetsProvider.updateConfig(config);
 			snippetsProvider.refresh(true);
+		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.snippetFromSelectionDescription`)) {
+			config.snippetFromSelectionIncludeDescription = newConfig.snippetFromSelectionIncludeDescription;
 		}
 	}
 	function updateExcludeRegex(newRegex: string) {

@@ -18,6 +18,7 @@ export interface IConfig {
 	onlyForActiveEditor: boolean;
 	showScope: boolean;
 	excludeRegex: string;
+	snippetFromSelectionIncludeDescription: boolean;
 
 	_excludeRegex?: RegExp;
 	_activeTextEditor?: TextEditor;

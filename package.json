@@ -72,6 +72,11 @@
 					"type": "boolean",
 					"default": true,
 					"description": "When `true` – shows scope (languages) that snippet designed to be applied to."
+				},
+				"snippets-view.snippetFromSelectionIncludeDescription": {
+					"type": "boolean",
+					"default": true,
+					"description": "When `true` - add description to newly created snippet."
 				}
 			}
 		},
