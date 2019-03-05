@@ -87,7 +87,7 @@ export function activate(extensionContext: ExtensionContext) {
 		const { document } = editor;
 		const { selection } = editor;
 		const tabSize = editor.options.tabSize as number;
-		const body = [];
+		let body: string | string[] = [];
 		for (let i = selection.start.line; i <= selection.end.line; i++) {
 			const line = document.lineAt(i);
 			let lineText = line.text;
@@ -98,11 +98,14 @@ export function activate(extensionContext: ExtensionContext) {
 			}
 			body.push(snippetizeLine(lineText, tabSize));
 		}
+		if (body.length === 1) {
+			body = body[0];
+		}
 		const result: {
 			untitled: {
 				scope: string;
 				prefix: string;
-				body: string[];
+				body: string[] | string;
 				description?: string;
 			};
 		} = {
