@@ -4,7 +4,7 @@ import * as path from 'path';
 import * as vscode from 'vscode';
 
 import { EXTENSION_NAME } from './extension';
-import { IConfig, ISnippetFile, SessionCache, SnippetFileExtensions } from './types';
+import { IConfig, IExtension, ISnippetFile, SessionCache, SnippetFileExtensions } from './types';
 import { dirExists, isObject } from './utils';
 
 const extensionFileDelimiter = ' => ';
@@ -193,7 +193,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 	private getExtensionSnippetFiles(): SnippetFile[] {
 		const extensionSnippets: SnippetFile[] = [];
-		vscode.extensions.all.forEach(ext => {
+		vscode.extensions.all.forEach((ext: IExtension) => {
 			const contributes = ext.packageJSON && ext.packageJSON.contributes;
 			if (!isObject(contributes)) {
 				return;
@@ -229,7 +229,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 				let parsedSnippets: ISnippetFile;
 				try {
-					parsedSnippets = JSON5.parse(contents);
+					parsedSnippets = JSON5.parse(contents);// tslint:disable-line
 				} catch (err) {
 					vscode.window.showErrorMessage(`JSON parsing of snippet file ${snippetFile.absolutePath} failed`);
 					return reject([]);

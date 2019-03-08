@@ -10,6 +10,7 @@ export const EXTENSION_NAME = 'snippets-view';
 
 export function activate(extensionContext: ExtensionContext) {
 	const config = JSON.parse(JSON.stringify(workspace.getConfiguration(EXTENSION_NAME))) as IConfig;
+	let onDidChangeActiveTextEditor: Disposable;
 	config._activeTextEditor = window.activeTextEditor;
 	updateExcludeRegex(config.excludeRegex);
 
@@ -53,10 +54,10 @@ export function activate(extensionContext: ExtensionContext) {
 
 	async function getSymbols(document: TextDocument): Promise<DocumentSymbol[]> {
 		return new Promise(async (resolve, reject) => {
-			let symbols = await commands.executeCommand<DocumentSymbol[]>('vscode.executeDocumentSymbolProvider', document.uri);
+			let symbols = await commands.executeCommand<DocumentSymbol[]>('vscode.executeDocumentSymbolProvider', document.uri);// tslint:disable-line
 			if (!symbols || symbols.length === 0) {
 				setTimeout(async () => {
-					symbols = await commands.executeCommand<DocumentSymbol[]>('vscode.executeDocumentSymbolProvider', document.uri);
+					symbols = await commands.executeCommand<DocumentSymbol[]>('vscode.executeDocumentSymbolProvider', document.uri);// tslint:disable-line
 					return resolve(symbols || []);
 				}, 1200);
 			} else {
@@ -111,10 +112,10 @@ export function activate(extensionContext: ExtensionContext) {
 		let snippet = '{\n';
 		snippet += '\t"\${1:untitled}": {\n';
 		snippet += `\t\t"scope": "\${3:${editor.document.languageId}}",\n`;
-		snippet += '\t\t"prefix": "${2:${1:untitled}}",\n';
+		snippet += '\t\t"prefix": "${2:${1:untitled}}",\n';// tslint:disable-line
 		snippet += `\t\t"body": ${body},\n`;
 		if (config.snippetFromSelectionIncludeDescription) {
-			snippet += '\t\t"description": "${4:description}",\n';
+			snippet += '\t\t"description": "${4:description}",\n';// tslint:disable-line
 		}
 		snippet += '\t}\n';
 		snippet += '}';
@@ -187,12 +188,12 @@ export function activate(extensionContext: ExtensionContext) {
 			config.snippetFromSelectionIncludeDescription = newConfig.snippetFromSelectionIncludeDescription;
 		}
 	}
-	function updateExcludeRegex(newRegex: string) {
+	function updateExcludeRegex(newRegex: any) {
 		if (newRegex && typeof newRegex === 'string') {
 			try {
 				config._excludeRegex = new RegExp(newRegex, 'i');
 			} catch (err) {
-				window.showErrorMessage(`Invalid regex for "excludeRegex" ${err.toString()}`);
+				window.showErrorMessage(`Invalid regex for "excludeRegex" ${err.toString() as Error}`);// tslint:disable-line
 			}
 		} else if (newRegex === '') {
 			config._excludeRegex = undefined;
@@ -215,8 +216,6 @@ export function activate(extensionContext: ExtensionContext) {
 			snippetsProvider.refresh(false);
 		}
 	}
-
-	let onDidChangeActiveTextEditor: Disposable;
 
 	if (config.onlyForActiveEditor) {
 		onDidChangeActiveTextEditor = window.onDidChangeActiveTextEditor(onChangeActiveTextEditor);

@@ -1,4 +1,4 @@
-import { TextEditor } from 'vscode';
+import { TextEditor, Uri } from 'vscode';
 import { Snippet, SnippetFile } from './provider';
 
 export interface ISnippet {
@@ -33,4 +33,23 @@ export interface SessionCache {
 		[absolutePath: string]: Snippet[];
 	};
 	allSnippetFiles: SnippetFile[];
+}
+
+export interface IExtension {
+	id: string;
+	packageJSON: IPackageJSON;
+}
+
+interface IPackageJSON {
+	contributes: IContributes;
+	extensionLocation: Uri;
+}
+
+interface IContributes {
+	snippets: SnippetContribution[];
+}
+
+interface SnippetContribution {
+	language: string;
+	path: string;
 }
