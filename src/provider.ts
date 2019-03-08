@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 
 import { EXTENSION_NAME } from './extension';
 import { IConfig, IExtension, ISnippetFile, SessionCache, SnippetFileExtensions } from './types';
-import { dirExists, isObject } from './utils';
+import { dirExists, isObject, log } from './utils';
 
 const extensionFileDelimiter = ' => ';
 
@@ -86,7 +86,9 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 	updateConfig(newConfig: IConfig): void {
 		this.config = newConfig;
-		// console.log('💜 :: Provider :: updateConfig');
+		/* develblock:start */
+		log('💜 :: Provider :: updateConfig');
+		/* develblock:end */
 	}
 
 	getTreeItem(element: Snippet | SnippetFile): vscode.TreeItem {
@@ -155,7 +157,9 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 	}
 
 	private getAllSnippetFiles(): Promise<SnippetFile[]> {
-		// console.log('🔴 :: Find all Snippet Files');
+		/* develblock:start */
+		log('🔴 :: Find all Snippet Files');
+		/* develblock:end */
 		return new Promise(async (resolve, reject) => {
 			const workspaceFolders = vscode.workspace.workspaceFolders;
 			let projectLevelSnippets: SnippetFile[] = [];
@@ -215,7 +219,9 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 	}
 
 	private getSnippetFileContents(snippetFile: SnippetFile): Promise<Snippet[]> {
-		// console.log('🔵 :: Read Snippet File', snippetFile.absolutePath);
+		/* develblock:start */
+		log('🔵 :: Read Snippet File', snippetFile.absolutePath);
+		/* develblock:end */
 		return new Promise((resolve, reject) => {
 			fs.readFile(snippetFile.absolutePath, 'utf8', (err, contents) => {
 				if (err) {

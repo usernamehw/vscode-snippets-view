@@ -17,3 +17,9 @@ export function dirExists(path: string): Promise<boolean> {
 }
 
 export const isObject = (item: any): item is object => typeof item === 'object' && item !== null;
+
+export function log(...args: any) {
+	if (typeof __DEV !== 'undefined') {
+		console.log(...args);// tslint:disable-line
+	}
+}
