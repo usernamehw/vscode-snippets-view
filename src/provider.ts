@@ -158,7 +158,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 	private getAllSnippetFiles(): Promise<SnippetFile[]> {
 		/* develblock:start */
-		log('🔴 :: Find all Snippet Files');
+		log('🔻 :: Find all Snippet Files');
 		/* develblock:end */
 		return new Promise(async (resolve, reject) => {
 			const workspaceFolders = vscode.workspace.workspaceFolders;
@@ -209,6 +209,9 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 			}
 			const extensionLocation = ext.packageJSON.extensionLocation;
 			if (!extensionLocation) {
+				/* develblock:start */
+				log('❌ :: Extension could not be found', ext.id);
+				/* develblock:end */
 				return;
 			}
 			snippets.forEach(snippet => {
@@ -220,7 +223,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 	private getSnippetFileContents(snippetFile: SnippetFile): Promise<Snippet[]> {
 		/* develblock:start */
-		log('🔵 :: Read Snippet File', snippetFile.absolutePath);
+		log('  :: Read Snippet File', snippetFile.absolutePath);
 		/* develblock:end */
 		return new Promise((resolve, reject) => {
 			fs.readFile(snippetFile.absolutePath, 'utf8', (err, contents) => {
@@ -231,7 +234,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 				if (contents === '') {
 					/* develblock:start */
-					log('❎ :: empty file', snippetFile.absolutePath);
+					log('❎ :: Empty file', snippetFile.absolutePath);
 					/* develblock:end */
 					return resolve([]);
 				}
@@ -240,6 +243,9 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 				try {
 					parsedSnippets = JSON5.parse(contents);// tslint:disable-line
 				} catch (err) {
+					/* develblock:start */
+					log(`❌ :: JSON parsing of snippet file ${snippetFile.absolutePath} failed`);
+					/* develblock:end */
 					vscode.window.showErrorMessage(`JSON parsing of snippet file ${snippetFile.absolutePath} failed`);
 					return reject([]);
 				}
