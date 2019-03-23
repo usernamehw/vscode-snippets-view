@@ -230,6 +230,9 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 				}
 
 				if (contents === '') {
+					/* develblock:start */
+					log('❎ :: empty file', snippetFile.absolutePath);
+					/* develblock:end */
 					return resolve([]);
 				}
 
