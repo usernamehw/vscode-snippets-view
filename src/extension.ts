@@ -117,7 +117,7 @@ export function activate(extensionContext: ExtensionContext) {
 		if (config.snippetFromSelectionIncludeDescription) {
 			snippet += '\t\t"description": "${4:description}",\n';// tslint:disable-line
 		}
-		snippet += '\t}\n';
+		snippet += '\t},\n';
 		snippet += '}';
 		vscode.workspace.openTextDocument({ language: 'jsonc' }).then(newDocument => {
 			vscode.window.showTextDocument(newDocument).then(() => {
