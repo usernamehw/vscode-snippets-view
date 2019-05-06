@@ -223,7 +223,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 	private getSnippetFileContents(snippetFile: SnippetFile): Promise<Snippet[]> {
 		/* develblock:start */
-		log('  :: Read Snippet File', snippetFile.absolutePath);
+		log('⏹ :: Read Snippet File', snippetFile.absolutePath);
 		/* develblock:end */
 		return new Promise((resolve, reject) => {
 			fs.readFile(snippetFile.absolutePath, 'utf8', (err, contents) => {
