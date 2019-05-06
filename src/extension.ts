@@ -146,7 +146,8 @@ export function activate(extensionContext: ExtensionContext) {
 
 		return result
 			.replace(/\\/g, '\\\\')
-			.replace(/[\$]/g, '\\$');
+			.replace(/\$/g, '\\\\$')
+			.replace(/\}/g, '\\\\}');
 	}
 
 	function updateConfig(e: ConfigurationChangeEvent) {
