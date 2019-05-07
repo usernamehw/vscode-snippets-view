@@ -1,3 +1,9 @@
+## 0.2.4 `07 May 2019`
+
+- 🐛 Fix unnecessary `readFile` under specific config
+- 🐛 Fix escaping `}` inside the text of the sort: `text ${variable} text` when creating snippet from selection
+- 🔨 Simplify caching files
+
 ## 0.2.3 `05 Mar 2019`
 
 - ✨ Added menu entry to quickly switch setting `flatten`
