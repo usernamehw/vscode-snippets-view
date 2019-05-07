@@ -28,9 +28,8 @@ export enum SnippetFileExtensions {
 	codeSnippets = '.code-snippets',
 }
 export interface SessionCache {
-	flattenedSnippets: Snippet[];
 	snippetsFromFile: {
-		[absolutePath: string]: Snippet[];
+		[absolutePathAndLanguage: string]: Snippet[];
 	};
 	allSnippetFiles: SnippetFile[];
 }

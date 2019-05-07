@@ -21,7 +21,7 @@ export class Snippet extends vscode.TreeItem {
 	) {
 		super(label);
 
-		if (snippetFile.isFromExtension) {
+		if (snippetFile.fromExtension) {
 			this.scope = [snippetFile.label.split(extensionFileDelimiter)[1]];
 		}
 	}
@@ -50,12 +50,14 @@ export class SnippetFile extends vscode.TreeItem {
 		readonly label: string,
 		readonly absolutePath: string,
 		readonly isJSON: boolean,
-		readonly isFromExtension?: boolean,
+		readonly fromExtension?: {
+			language: string;
+		},
 	) {
 		super(label);
 
 		this.resourceUri = vscode.Uri.file(absolutePath);
-		if (this.isFromExtension) {
+		if (this.fromExtension) {
 			this.iconPath = vscode.ThemeIcon.Folder;
 		} else {
 			this.iconPath = vscode.ThemeIcon.File;
@@ -77,9 +79,8 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 	refresh(disposeCache: boolean): void {
 		if (disposeCache) {
-			SnippetProvider.sessionCache.allSnippetFiles = [];
-			SnippetProvider.sessionCache.flattenedSnippets = [];
 			SnippetProvider.sessionCache.snippetsFromFile = {};
+			SnippetProvider.sessionCache.allSnippetFiles = [];
 		}
 		this._onDidChangeTreeData.fire();
 	}
@@ -97,40 +98,20 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 	async getChildren(element?: SnippetFile): Promise<Snippet[] | SnippetFile[]> {
 		if (element) {
-			if (SnippetProvider.sessionCache.snippetsFromFile[element.absolutePath]) {
-				return Promise.resolve(SnippetProvider.sessionCache.snippetsFromFile[element.absolutePath].filter(this.filterSnippets).sort(this.sortByScope));
-			}
-
 			const snippetsFromFile = await this.getSnippetFileContents(element);
-
-			SnippetProvider.sessionCache.snippetsFromFile[element.absolutePath] = snippetsFromFile;
-
 			return snippetsFromFile.filter(this.filterSnippets).sort(this.sortByScope);
 		} else {
 			if (this.config.flatten) {
-				if (SnippetProvider.sessionCache.flattenedSnippets.length) {
-					return Promise.resolve(SnippetProvider.sessionCache.flattenedSnippets.filter(this.filterSnippets).sort(this.sortByScope));
-				}
-
 				const allSnippets = await this.getAllSnippets();
-				SnippetProvider.sessionCache.flattenedSnippets = allSnippets;
-
 				return allSnippets.filter(this.filterSnippets).sort(this.sortByScope);
 			} else {
-				if (SnippetProvider.sessionCache.allSnippetFiles.length) {
-					return Promise.resolve(SnippetProvider.sessionCache.allSnippetFiles);
-				}
-
 				const allSnippetFiles = await this.getAllSnippetFiles();
-
-				SnippetProvider.sessionCache.allSnippetFiles = allSnippetFiles;
-
 				return allSnippetFiles;
 			}
 		}
 	}
 
-	private getSnippetFilesFromDirectory(absoluteDirPath: string, fileExtensions: SnippetFileExtensions[], fromExtension?: boolean): Promise<SnippetFile[]> {
+	private getSnippetFilesFromDirectory(absoluteDirPath: string, fileExtensions: SnippetFileExtensions[]): Promise<SnippetFile[]> {
 		return new Promise((resolve, reject) => {
 			fs.readdir(absoluteDirPath, (err, files) => {
 				if (err) {
@@ -145,9 +126,9 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 					const absolutePath = path.join(absoluteDirPath, file);
 					if (fileExtensions.indexOf(extname as SnippetFileExtensions) !== -1) {
 						if (extname === SnippetFileExtensions.json) {
-							snippets.push(new SnippetFile(filename, absolutePath, true, fromExtension));
+							snippets.push(new SnippetFile(filename, absolutePath, true));
 						} else {
-							snippets.push(new SnippetFile(filename, absolutePath, false, fromExtension));
+							snippets.push(new SnippetFile(filename, absolutePath, false));
 						}
 					}
 				});
@@ -157,9 +138,12 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 	}
 
 	private getAllSnippetFiles(): Promise<SnippetFile[]> {
-		/* develblock:start */
-		log('🔻 :: Find all Snippet Files');
-		/* develblock:end */
+		if (SnippetProvider.sessionCache.allSnippetFiles.length) {
+			/* develblock:start */
+			log('✅ :: Take all snippet files from cache');
+			/* develblock:end */
+			return Promise.resolve(SnippetProvider.sessionCache.allSnippetFiles);
+		}
 		return new Promise(async (resolve, reject) => {
 			const workspaceFolders = vscode.workspace.workspaceFolders;
 			let projectLevelSnippets: SnippetFile[] = [];
@@ -177,7 +161,15 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 			}
 
 			const globalLevelSnippets: SnippetFile[] = await this.getSnippetFilesFromDirectory(this.snippetsDirPath, [SnippetFileExtensions.json, SnippetFileExtensions.codeSnippets]);
-			return resolve(projectLevelSnippets.concat(globalLevelSnippets, extensionContributedSnippets));
+
+			const allSnippetFiles = projectLevelSnippets.concat(globalLevelSnippets, extensionContributedSnippets);
+			/* develblock:start */
+			log('🔻 :: Find all Snippet Files');
+			/* develblock:end */
+
+			SnippetProvider.sessionCache.allSnippetFiles = allSnippetFiles;
+
+			return resolve(allSnippetFiles);
 		});
 	}
 
@@ -215,16 +207,22 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 				return;
 			}
 			snippets.forEach(snippet => {
-				extensionSnippets.push(new SnippetFile(`${ext.id}${extensionFileDelimiter}${snippet.language}`, path.join(extensionLocation.fsPath, snippet.path), true, true));
+				extensionSnippets.push(new SnippetFile(`${ext.id}${extensionFileDelimiter}${snippet.language}`, path.join(extensionLocation.fsPath, snippet.path), true, { language: snippet.language }));
 			});
 		});
 		return extensionSnippets;
 	}
 
 	private getSnippetFileContents(snippetFile: SnippetFile): Promise<Snippet[]> {
-		/* develblock:start */
-		log('⏹ :: Read Snippet File', snippetFile.absolutePath);
-		/* develblock:end */
+		const language: string = (snippetFile.fromExtension && snippetFile.fromExtension.language) || '';
+		const sessionCacheKey = snippetFile.absolutePath + language;
+
+		if (SnippetProvider.sessionCache.snippetsFromFile[sessionCacheKey]) {
+			/* develblock:start */
+			log('💚 :: Take file content from cache', sessionCacheKey);
+			/* develblock:end */
+			return Promise.resolve(SnippetProvider.sessionCache.snippetsFromFile[sessionCacheKey]);
+		}
 		return new Promise((resolve, reject) => {
 			fs.readFile(snippetFile.absolutePath, 'utf8', (err, contents) => {
 				if (err) {
@@ -234,8 +232,9 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 				if (contents === '') {
 					/* develblock:start */
-					log('❎ :: Empty file', snippetFile.absolutePath);
+					log('🆒 :: Empty file', snippetFile.absolutePath);
 					/* develblock:end */
+					SnippetProvider.sessionCache.snippetsFromFile[sessionCacheKey] = [];
 					return resolve([]);
 				}
 
@@ -253,8 +252,10 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 				const snippets: Snippet[] = [];
 				for (const key in parsedSnippets) {
 					const parsed = parsedSnippets[key];
-					if (!parsed.scope && snippetFile.isJSON) {
+					if (!parsed.scope && snippetFile.isJSON && !snippetFile.fromExtension) {
 						parsed.scope = snippetFile.label;
+					} else if (snippetFile.fromExtension) {
+						parsed.scope = snippetFile.fromExtension.language;
 					}
 					const scope = parsed.scope ? parsed.scope.split(',') : [];
 
@@ -270,6 +271,13 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 						this.config,
 					));
 				}
+
+				SnippetProvider.sessionCache.snippetsFromFile[sessionCacheKey] = snippets;
+
+				/* develblock:start */
+				log('⏹ :: Read Snippet File', sessionCacheKey);
+				/* develblock:end */
+
 				return resolve(snippets);
 			});
 		});
@@ -301,7 +309,6 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 	private static readonly sessionCache: SessionCache = {
 		snippetsFromFile: {},
-		flattenedSnippets: [],
 		allSnippetFiles: [],
 	};
 }
