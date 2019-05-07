@@ -88,7 +88,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 	updateConfig(newConfig: IConfig): void {
 		this.config = newConfig;
 		/* develblock:start */
-		log('💜 :: Provider :: updateConfig');
+		log('💜 :: UpdateConfig');
 		/* develblock:end */
 	}
 
