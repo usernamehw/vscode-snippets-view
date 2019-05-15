@@ -110,7 +110,11 @@
 			{
 				"command": "snippets-view.openSnippetsFile",
 				"title": "Open Snippets File",
-				"category": "Snippets View"
+				"category": "Snippets View",
+				"icon": {
+					"light": "img/open-file-light.svg",
+					"dark": "img/open-file-dark.svg"
+				}
 			},
 			{
 				"command": "snippets-view.createSnippetFromSelection",
@@ -147,7 +151,12 @@
 			"view/item/context": [
 				{
 					"command": "snippets-view.openSnippetsFile",
-					"when": "view == snippets-view.tree && viewItem =~ /snippet|snippetFile/"
+					"when": "view == snippets-view.tree"
+				},
+				{
+					"command": "snippets-view.openSnippetsFile",
+					"when": "view == snippets-view.tree",
+					"group": "inline"
 				}
 			]
 		}

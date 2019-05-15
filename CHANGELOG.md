@@ -1,3 +1,7 @@
+## 0.2.5 `15 May 2019`
+
+- ✨ Add inline button `go to snippet`
+
 ## 0.2.4 `07 May 2019`
 
 - 🐛 Fix unnecessary `readFile` under specific config
