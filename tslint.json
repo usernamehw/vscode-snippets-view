@@ -68,7 +68,7 @@
 			false,
 			"allow-new"
 		],
-		"member-ordering": true,
+		"member-ordering": false,
 		"curly": [
 			true,
 			"ignore-same-line"
