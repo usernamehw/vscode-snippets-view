@@ -112,8 +112,8 @@
 				"title": "Open Snippets File",
 				"category": "Snippets View",
 				"icon": {
-					"light": "img/open-file-light.svg",
-					"dark": "img/open-file-dark.svg"
+					"light": "img/go-to-file-light.svg",
+					"dark": "img/go-to-file-dark.svg"
 				}
 			},
 			{
