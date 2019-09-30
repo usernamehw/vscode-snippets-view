@@ -1,3 +1,8 @@
+## 0.2.6 `01 Oct 2019`
+
+- 🔨 Update Activity Bar icon & other icons
+- 🔨 Delete demo `.gif` from extension
+
 ## 0.2.5 `15 May 2019`
 
 - ✨ Add inline button `go to snippet`
