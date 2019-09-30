@@ -1,6 +1,6 @@
 ## Snippets View
 
-![Demo](img/demo.gif)
+![Demo](https://raw.githubusercontent.com/usernamehw/vscode-snippets-view/master/img/demo.gif)
 
 Possible usages of this extension:
 
