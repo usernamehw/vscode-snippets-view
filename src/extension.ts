@@ -81,7 +81,6 @@ export function activate(extensionContext: ExtensionContext) {
 	const refresh = commands.registerCommand(`${EXTENSION_NAME}.tree.refresh`, () => snippetsProvider.refresh(true));
 	const snippetsView = vscode.window.createTreeView(`${EXTENSION_NAME}.tree`, {
 		treeDataProvider: snippetsProvider,
-		// @ts-ignore
 		showCollapseAll: true,
 	});
 

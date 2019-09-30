@@ -6,7 +6,7 @@
 	"publisher": "usernamehw",
 	"license": "MIT",
 	"engines": {
-		"vscode": "^1.28.0"
+		"vscode": "^1.30.0"
 	},
 	"repository": {
 		"type": "git",
@@ -169,14 +169,14 @@
 	},
 	"devDependencies": {
 		"@types/json5": "0.0.30",
-		"@types/node": "^8.10.25",
+		"@types/node": "^10.14.19",
+		"@types/vscode": "^1.30.0",
 		"friendly-errors-webpack-plugin": "^1.7.0",
-		"ts-loader": "^6.0.0",
+		"ts-loader": "^6.2.0",
 		"tslint": "^5.16.0",
-		"typescript": "^3.4.5",
-		"vscode": "^1.1.30",
-		"webpack": "^4.30.0",
-		"webpack-cli": "^3.3.2",
+		"typescript": "^3.6.3",
+		"webpack": "^4.41.0",
+		"webpack-cli": "^3.3.9",
 		"webpack-strip-block": "^0.2.0"
 	},
 	"dependencies": {
