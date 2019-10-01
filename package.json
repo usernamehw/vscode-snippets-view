@@ -130,6 +130,24 @@
 				"command": "snippets-view.toggleFlatten",
 				"title": "Toggle `flatten`",
 				"category": "Snippets View"
+			},
+			{
+				"command": "snippets-view.useTreeView",
+				"title": "Use tree view",
+				"category": "Snippets View",
+				"icon": {
+					"light": "img/filter-light.svg",
+					"dark": "img/filter-dark.svg"
+				}
+			},
+			{
+				"command": "snippets-view.useListView",
+				"title": "Use list view",
+				"category": "Snippets View",
+				"icon": {
+					"light": "img/selection-light.svg",
+					"dark": "img/selection-dark.svg"
+				}
 			}
 		],
 		"menus": {
@@ -144,8 +162,14 @@
 					"when": "view == snippets-view.tree"
 				},
 				{
-					"command": "snippets-view.toggleFlatten",
-					"when": "view == snippets-view.tree"
+					"command": "snippets-view.useTreeView",
+					"when": "view == snippets-view.tree && config.snippets-view.flatten",
+					"group": "navigation"
+				},
+				{
+					"command": "snippets-view.useListView",
+					"when": "view == snippets-view.tree && !config.snippets-view.flatten",
+					"group": "navigation"
 				}
 			],
 			"view/item/context": [
@@ -157,6 +181,20 @@
 					"command": "snippets-view.openSnippetsFile",
 					"when": "view == snippets-view.tree",
 					"group": "inline"
+				}
+			],
+			"commandPalette": [
+				{
+					"command": "snippets-view.useTreeView",
+					"when": "never"
+				},
+				{
+					"command": "snippets-view.useListView",
+					"when": "never"
+				},
+				{
+					"command": "snippets-view.openSnippetsFile",
+					"when": "never"
 				}
 			]
 		}

@@ -52,6 +52,16 @@ export function activate(extensionContext: ExtensionContext) {
 		const currentSettingValue = settings.get(`${EXTENSION_NAME}.flatten`);
 		settings.update(`${EXTENSION_NAME}.flatten`, !currentSettingValue, true);
 	});
+	const useTreeView = commands.registerCommand(`${EXTENSION_NAME}.useTreeView`, () => {
+		const settings = workspace.getConfiguration(undefined, null);// tslint:disable-line
+		const currentSettingValue = settings.get(`${EXTENSION_NAME}.flatten`);
+		settings.update(`${EXTENSION_NAME}.flatten`, !currentSettingValue, true);
+	});
+	const useListView = commands.registerCommand(`${EXTENSION_NAME}.useListView`, () => {
+		const settings = workspace.getConfiguration(undefined, null);// tslint:disable-line
+		const currentSettingValue = settings.get(`${EXTENSION_NAME}.flatten`);
+		settings.update(`${EXTENSION_NAME}.flatten`, !currentSettingValue, true);
+	});
 
 	async function getSymbols(document: TextDocument): Promise<DocumentSymbol[]> {
 		return new Promise(async (resolve, reject) => {
@@ -158,7 +168,8 @@ export function activate(extensionContext: ExtensionContext) {
 	}
 
 	extensionContext.subscriptions.push(workspace.onDidChangeConfiguration(updateConfig, EXTENSION_NAME));
-	extensionContext.subscriptions.push(insertSnippet, snippetsView, refresh, openSnippetsFile, snippetFromSelectionCommand, toggleOnlyForActiveEditor, toggleFlatten);
+	extensionContext.subscriptions.push(insertSnippet, snippetsView, refresh, openSnippetsFile, snippetFromSelectionCommand, toggleOnlyForActiveEditor, toggleFlatten, useTreeView,
+useListView);
 }
 
 export function deactivate() { }
