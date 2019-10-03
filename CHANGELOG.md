@@ -1,3 +1,7 @@
+## 0.2.7 `03 Oct 2019`
+
+- ✨ Add an icon that toggles `flatten` setting (between list and tree view)
+
 ## 0.2.6 `01 Oct 2019`
 
 - 🔨 Update Activity Bar icon & other icons
