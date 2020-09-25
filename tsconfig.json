@@ -12,7 +12,9 @@
 		"rootDir": "src",
 		"strict": true,
 		"alwaysStrict": true,
-		"noUnusedLocals": false
+		"esModuleInterop": true,
+		"allowSyntheticDefaultImports": true,
+		"skipLibCheck": true,
 	},
 	"exclude": [
 		"node_modules",

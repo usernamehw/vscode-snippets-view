@@ -1,6 +1,6 @@
 import * as fs from 'fs';
 
-export function dirExists(path: string): Promise<boolean> {
+export async function dirExists(path: string): Promise<boolean> {
 	return new Promise((resolve, reject) => {
 		try {
 			fs.stat(path, (err, file) => {
@@ -16,7 +16,7 @@ export function dirExists(path: string): Promise<boolean> {
 	});
 }
 
-export const isObject = (item: any): item is object => typeof item === 'object' && item !== null;
+export const isObject = (item: unknown): item is object => typeof item === 'object' && item !== null;
 
 export function log(...args: any) {
 	if (typeof __DEV !== 'undefined') {

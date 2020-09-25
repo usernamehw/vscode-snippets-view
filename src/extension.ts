@@ -1,11 +1,10 @@
 'use strict';
 import * as path from 'path';
-import { commands, ConfigurationChangeEvent, Disposable, DocumentSymbol, ExtensionContext, Selection, TextDocument, TextEditor, Uri, window, workspace } from 'vscode';
-import * as vscode from 'vscode';
-
+import vscode, { commands, ConfigurationChangeEvent, Disposable, DocumentSymbol, ExtensionContext, Selection, TextDocument, TextEditor, Uri, window, workspace } from 'vscode';
 import { Snippet, SnippetFile, SnippetProvider } from './provider';
 import { snippetFromSelection } from './snippetFromSelection';
 import { IConfig, ISnippet } from './types';
+
 
 export const EXTENSION_NAME = 'snippets-view';
 
@@ -168,8 +167,7 @@ export function activate(extensionContext: ExtensionContext) {
 	}
 
 	extensionContext.subscriptions.push(workspace.onDidChangeConfiguration(updateConfig, EXTENSION_NAME));
-	extensionContext.subscriptions.push(insertSnippet, snippetsView, refresh, openSnippetsFile, snippetFromSelectionCommand, toggleOnlyForActiveEditor, toggleFlatten, useTreeView,
-useListView);
+	extensionContext.subscriptions.push(insertSnippet, snippetsView, refresh, openSnippetsFile, snippetFromSelectionCommand, toggleOnlyForActiveEditor, toggleFlatten, useTreeView, useListView);
 }
 
 export function deactivate() { }

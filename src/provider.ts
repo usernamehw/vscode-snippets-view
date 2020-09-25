@@ -1,8 +1,7 @@
 import * as fs from 'fs';
-import * as JSON5 from 'json5';
+import JSON5 from 'json5';
 import * as path from 'path';
 import * as vscode from 'vscode';
-
 import { EXTENSION_NAME } from './extension';
 import { IConfig, IExtension, ISnippetFile, SessionCache, SnippetFileExtensions } from './types';
 import { dirExists, isObject, log } from './utils';
@@ -17,7 +16,7 @@ export class Snippet extends vscode.TreeItem {
 		readonly scope: string[],
 		readonly command: vscode.Command,
 		readonly snippetFile: SnippetFile,
-		readonly config: IConfig,
+		readonly config: IConfig
 	) {
 		super(label);
 
@@ -25,11 +24,11 @@ export class Snippet extends vscode.TreeItem {
 			this.scope = [snippetFile.label.split(extensionFileDelimiter)[1]];
 		}
 	}
-
+	// @ts-expect-error idk
 	get tooltip() {
 		return this.scope.join(',');
 	}
-
+	// @ts-expect-error idk
 	get description() {
 		if (this.snippetFile.isJSON && !this.config.flatten) {
 			return;
@@ -52,7 +51,7 @@ export class SnippetFile extends vscode.TreeItem {
 		readonly isJSON: boolean,
 		readonly fromExtension?: {
 			language: string;
-		},
+		}
 	) {
 		super(label);
 
@@ -68,13 +67,12 @@ export class SnippetFile extends vscode.TreeItem {
 }
 
 export class SnippetProvider implements vscode.TreeDataProvider<Snippet | SnippetFile> {
-
 	private readonly _onDidChangeTreeData: vscode.EventEmitter<Snippet | undefined> = new vscode.EventEmitter<Snippet | undefined>();
 	readonly onDidChangeTreeData: vscode.Event<Snippet | undefined> = this._onDidChangeTreeData.event;
 
 	constructor(
 		private readonly snippetsDirPath: string,
-		private config: IConfig,
+		private config: IConfig
 	) { }
 
 	refresh(disposeCache: boolean): void {
@@ -124,7 +122,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 					const extname = path.extname(file);
 					const filename = path.parse(file).name;
 					const absolutePath = path.join(absoluteDirPath, file);
-					if (fileExtensions.indexOf(extname as SnippetFileExtensions) !== -1) {
+					if (fileExtensions.includes(extname as SnippetFileExtensions)) {
 						if (extname === SnippetFileExtensions.json) {
 							snippets.push(new SnippetFile(filename, absolutePath, true));
 						} else {
@@ -174,9 +172,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 	}
 
 	private async getAllSnippetFilesContents(snippetFiles: SnippetFile[]): Promise<Snippet[]> {
-		const snippets = await Promise.all(snippetFiles.map(file => {
-			return this.getSnippetFileContents(file);
-		}));
+		const snippets = await Promise.all(snippetFiles.map(file => this.getSnippetFileContents(file)));
 
 		return Array.prototype.concat.apply([], snippets);
 	}
@@ -214,7 +210,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 	}
 
 	private getSnippetFileContents(snippetFile: SnippetFile): Promise<Snippet[]> {
-		const language: string = (snippetFile.fromExtension && snippetFile.fromExtension.language) || '';
+		const language: string = snippetFile.fromExtension && snippetFile.fromExtension.language || '';
 		const sessionCacheKey = snippetFile.absolutePath + language;
 
 		if (SnippetProvider.sessionCache.snippetsFromFile[sessionCacheKey]) {
@@ -268,7 +264,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 							arguments: [parsed.body],
 						},
 						snippetFile,
-						this.config,
+						this.config
 					));
 				}
 
@@ -295,7 +291,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 			}
 		}
 		return true;
-	}
+	};
 	// Sort snippets that have:
 	// 1 total and 1 matching scope - the highest
 	// Multiple scopes, but 1 of them matching - after
