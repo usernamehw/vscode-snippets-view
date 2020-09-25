@@ -1,5 +1,5 @@
 import { TextEditor, Uri } from 'vscode';
-import { Snippet, SnippetFile } from './provider';
+import { Snippet, SnippetFile } from './treeViewProvider';
 
 export interface ISnippet {
 	prefix: string;
@@ -19,6 +19,7 @@ export interface IConfig {
 	showScope: boolean;
 	excludeRegex: string;
 	snippetFromSelectionIncludeDescription: boolean;
+	treeViewCollapsedByDefault: boolean;
 
 	_excludeRegex?: RegExp;
 	_activeTextEditor?: TextEditor;

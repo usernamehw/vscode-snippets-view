@@ -1,18 +1,18 @@
 'use strict';
 import * as path from 'path';
 import vscode, { commands, ConfigurationChangeEvent, Disposable, DocumentSymbol, ExtensionContext, Selection, TextDocument, TextEditor, Uri, window, workspace } from 'vscode';
-import { Snippet, SnippetFile, SnippetProvider } from './provider';
+import { Snippet, SnippetFile, SnippetProvider } from './treeViewProvider';
 import { snippetFromSelection } from './snippetFromSelection';
 import { IConfig, ISnippet } from './types';
 
-
 export const EXTENSION_NAME = 'snippets-view';
+export const extensionConfig = JSON.parse(JSON.stringify(workspace.getConfiguration(EXTENSION_NAME))) as IConfig;
+
 
 export function activate(extensionContext: ExtensionContext) {
-	const config = JSON.parse(JSON.stringify(workspace.getConfiguration(EXTENSION_NAME))) as IConfig;
 	let onDidChangeActiveTextEditor: Disposable;
-	config._activeTextEditor = window.activeTextEditor;
-	updateExcludeRegex(config.excludeRegex);
+	extensionConfig._activeTextEditor = window.activeTextEditor;
+	updateExcludeRegex(extensionConfig.excludeRegex);
 
 	const insertSnippet = commands.registerCommand(`${EXTENSION_NAME}.insertSnippet`, (snippetBody: ISnippet['body']) => {
 		let snippetAsString;
@@ -23,7 +23,7 @@ export function activate(extensionContext: ExtensionContext) {
 			snippet: snippetAsString ? snippetAsString : snippetBody,
 		});
 
-		if (config.focusEditorAfterInsertion) {
+		if (extensionConfig.focusEditorAfterInsertion) {
 			commands.executeCommand('workbench.action.focusActiveEditorGroup');
 		}
 	});
@@ -86,7 +86,7 @@ export function activate(extensionContext: ExtensionContext) {
 		}
 	}
 
-	const snippetsProvider = new SnippetProvider(path.join(extensionContext.logPath, '..', '..', '..', '..', 'User', 'snippets'), config);
+	const snippetsProvider = new SnippetProvider(path.join(extensionContext.logPath, '..', '..', '..', '..', 'User', 'snippets'), extensionConfig);
 	const refresh = commands.registerCommand(`${EXTENSION_NAME}.tree.refresh`, () => snippetsProvider.refresh(true));
 	const snippetsView = vscode.window.createTreeView(`${EXTENSION_NAME}.tree`, {
 		treeDataProvider: snippetsProvider,
@@ -94,7 +94,7 @@ export function activate(extensionContext: ExtensionContext) {
 	});
 
 	const snippetFromSelectionCommand = vscode.commands.registerTextEditorCommand(`${EXTENSION_NAME}.createSnippetFromSelection`, editor => {
-		snippetFromSelection(editor, config.snippetFromSelectionIncludeDescription);
+		snippetFromSelection(editor, extensionConfig.snippetFromSelectionIncludeDescription);
 	});
 
 	function updateConfig(e: ConfigurationChangeEvent) {
@@ -102,66 +102,66 @@ export function activate(extensionContext: ExtensionContext) {
 
 		const newConfig = JSON.parse(JSON.stringify(workspace.getConfiguration(EXTENSION_NAME))) as IConfig;
 		if (e.affectsConfiguration(`${EXTENSION_NAME}.flatten`)) {
-			config.flatten = newConfig.flatten;
-			snippetsProvider.updateConfig(config);
+			extensionConfig.flatten = newConfig.flatten;
+			snippetsProvider.updateConfig(extensionConfig);
 			snippetsProvider.refresh(true);
 		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.excludeRegex`)) {
 			updateExcludeRegex(newConfig.excludeRegex);
-			snippetsProvider.updateConfig(config);
+			snippetsProvider.updateConfig(extensionConfig);
 			snippetsProvider.refresh(false);
 		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.focusEditorAfterInsertion`)) {
-			config.focusEditorAfterInsertion = newConfig.focusEditorAfterInsertion;
+			extensionConfig.focusEditorAfterInsertion = newConfig.focusEditorAfterInsertion;
 		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.showScope`)) {
-			config.showScope = newConfig.showScope;
-			snippetsProvider.updateConfig(config);
+			extensionConfig.showScope = newConfig.showScope;
+			snippetsProvider.updateConfig(extensionConfig);
 			snippetsProvider.refresh(false);
 		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.onlyForActiveEditor`)) {
-			config.onlyForActiveEditor = newConfig.onlyForActiveEditor;
+			extensionConfig.onlyForActiveEditor = newConfig.onlyForActiveEditor;
 
 			if (newConfig.onlyForActiveEditor) {
 				onDidChangeActiveTextEditor = window.onDidChangeActiveTextEditor(onChangeActiveTextEditor);
-				config._activeTextEditor = window.activeTextEditor;
+				extensionConfig._activeTextEditor = window.activeTextEditor;
 			} else {
 				onDidChangeActiveTextEditor.dispose();
-				config._activeTextEditor = undefined;
+				extensionConfig._activeTextEditor = undefined;
 			}
 
-			snippetsProvider.updateConfig(config);
+			snippetsProvider.updateConfig(extensionConfig);
 			snippetsProvider.refresh(true);
 		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.includeExtensionSnippets`)) {
-			config.includeExtensionSnippets = newConfig.includeExtensionSnippets;
-			snippetsProvider.updateConfig(config);
+			extensionConfig.includeExtensionSnippets = newConfig.includeExtensionSnippets;
+			snippetsProvider.updateConfig(extensionConfig);
 			snippetsProvider.refresh(true);
 		} else if (e.affectsConfiguration(`${EXTENSION_NAME}.snippetFromSelectionIncludeDescription`)) {
-			config.snippetFromSelectionIncludeDescription = newConfig.snippetFromSelectionIncludeDescription;
+			extensionConfig.snippetFromSelectionIncludeDescription = newConfig.snippetFromSelectionIncludeDescription;
 		}
 	}
 	function updateExcludeRegex(newRegex: any) {
 		if (newRegex && typeof newRegex === 'string') {
 			try {
-				config._excludeRegex = new RegExp(newRegex, 'i');
+				extensionConfig._excludeRegex = new RegExp(newRegex, 'i');
 			} catch (err) {
 				window.showErrorMessage(`Invalid regex for "excludeRegex" ${err.toString() as Error}`);// tslint:disable-line
 			}
 		} else if (newRegex === '') {
-			config._excludeRegex = undefined;
+			extensionConfig._excludeRegex = undefined;
 		}
 	}
 	function onChangeActiveTextEditor(textEditor: TextEditor | undefined) {
-		if (!config._activeTextEditor && !textEditor) {
+		if (!extensionConfig._activeTextEditor && !textEditor) {
 			return;
 		}
-		if (config._activeTextEditor && textEditor) {
-			if (config._activeTextEditor.document.languageId === textEditor.document.languageId) {
+		if (extensionConfig._activeTextEditor && textEditor) {
+			if (extensionConfig._activeTextEditor.document.languageId === textEditor.document.languageId) {
 				return;
 			}
 		}
-		config._activeTextEditor = textEditor;
-		snippetsProvider.updateConfig(config);
+		extensionConfig._activeTextEditor = textEditor;
+		snippetsProvider.updateConfig(extensionConfig);
 		snippetsProvider.refresh(false);
 	}
 
-	if (config.onlyForActiveEditor) {
+	if (extensionConfig.onlyForActiveEditor) {
 		onDidChangeActiveTextEditor = window.onDidChangeActiveTextEditor(onChangeActiveTextEditor);
 		extensionContext.subscriptions.push(onDidChangeActiveTextEditor);
 	}

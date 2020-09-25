@@ -78,6 +78,11 @@
 					"type": "boolean",
 					"default": true,
 					"description": "When `true` - add description to newly created snippet."
+				},
+				"snippets-view.treeViewCollapsedByDefault": {
+					"type": "boolean",
+					"default": false,
+					"description": "Controls whether Tree View starts with all the nodes expanded or not."
 				}
 			}
 		},

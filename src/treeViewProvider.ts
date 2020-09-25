@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import JSON5 from 'json5';
 import * as path from 'path';
 import * as vscode from 'vscode';
-import { EXTENSION_NAME } from './extension';
+import { extensionConfig, EXTENSION_NAME } from './extension';
 import { IConfig, IExtension, ISnippetFile, SessionCache, SnippetFileExtensions } from './types';
 import { dirExists, isObject, log } from './utils';
 
@@ -43,8 +43,6 @@ export class Snippet extends vscode.TreeItem {
 }
 
 export class SnippetFile extends vscode.TreeItem {
-	readonly collapsibleState = vscode.TreeItemCollapsibleState.Expanded;
-
 	constructor(
 		readonly label: string,
 		readonly absolutePath: string,
@@ -61,6 +59,7 @@ export class SnippetFile extends vscode.TreeItem {
 		} else {
 			this.iconPath = vscode.ThemeIcon.File;
 		}
+		this.collapsibleState = extensionConfig.treeViewCollapsedByDefault ? vscode.TreeItemCollapsibleState.Collapsed : vscode.TreeItemCollapsibleState.Expanded;
 	}
 
 	contextValue = 'snippetFile';
