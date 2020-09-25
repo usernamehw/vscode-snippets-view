@@ -6,7 +6,7 @@
 	"publisher": "usernamehw",
 	"license": "MIT",
 	"engines": {
-		"vscode": "^1.30.0"
+		"vscode": "^1.40.0"
 	},
 	"repository": {
 		"type": "git",
@@ -207,7 +207,7 @@
 	"devDependencies": {
 		"@types/json5": "0.0.30",
 		"@types/node": "^10.17.35",
-		"@types/vscode": "^1.30.0",
+		"@types/vscode": "^1.40.0",
 		"@typescript-eslint/eslint-plugin": "^4.2.0",
 		"@typescript-eslint/parser": "^4.2.0",
 		"eslint": "^7.9.0",
