@@ -80,7 +80,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 			SnippetProvider.sessionCache.snippetsFromFile = {};
 			SnippetProvider.sessionCache.allSnippetFiles = [];
 		}
-		this._onDidChangeTreeData.fire();
+		this._onDidChangeTreeData.fire(undefined);
 	}
 
 	updateConfig(newConfig: IConfig): void {
