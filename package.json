@@ -46,7 +46,8 @@
 			"properties": {
 				"snippets-view.includeExtensionSnippets": {
 					"type": "boolean",
-					"default": false
+					"default": false,
+					"description": "Include extension contributed snippets in the Tree View."
 				},
 				"snippets-view.focusEditorAfterInsertion": {
 					"type": "boolean",
