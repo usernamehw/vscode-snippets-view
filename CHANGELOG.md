@@ -1,3 +1,7 @@
+## 0.2.8 `06 Oct 2020`
+
+- ✨ Add option to have Tree View collapsed by default
+
 ## 0.2.7 `03 Oct 2019`
 
 - ✨ Add an icon that toggles `flatten` setting (between list and tree view)
