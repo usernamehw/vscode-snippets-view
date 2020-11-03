@@ -108,19 +108,13 @@
 				"command": "snippets-view.tree.refresh",
 				"title": "Refresh",
 				"category": "Snippets View",
-				"icon": {
-					"light": "img/refresh-light.svg",
-					"dark": "img/refresh-dark.svg"
-				}
+				"icon": "$(refresh)"
 			},
 			{
 				"command": "snippets-view.openSnippetsFile",
 				"title": "Open Snippets File",
 				"category": "Snippets View",
-				"icon": {
-					"light": "img/go-to-file-light.svg",
-					"dark": "img/go-to-file-dark.svg"
-				}
+				"icon": "$(go-to-file)"
 			},
 			{
 				"command": "snippets-view.createSnippetFromSelection",
@@ -141,19 +135,13 @@
 				"command": "snippets-view.useTreeView",
 				"title": "Use tree view",
 				"category": "Snippets View",
-				"icon": {
-					"light": "img/filter-light.svg",
-					"dark": "img/filter-dark.svg"
-				}
+				"icon": "$(list-filter)"
 			},
 			{
 				"command": "snippets-view.useListView",
 				"title": "Use list view",
 				"category": "Snippets View",
-				"icon": {
-					"light": "img/selection-light.svg",
-					"dark": "img/selection-dark.svg"
-				}
+				"icon": "$(list-flat)"
 			}
 		],
 		"menus": {
