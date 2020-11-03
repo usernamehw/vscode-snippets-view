@@ -1,8 +1,8 @@
 'use strict';
 import * as path from 'path';
 import vscode, { commands, ConfigurationChangeEvent, Disposable, DocumentSymbol, ExtensionContext, Selection, TextDocument, TextEditor, Uri, window, workspace } from 'vscode';
-import { Snippet, SnippetFile, SnippetProvider } from './treeViewProvider';
 import { snippetFromSelection } from './snippetFromSelection';
+import { Snippet, SnippetFile, SnippetProvider } from './treeViewProvider';
 import { IConfig, ISnippet } from './types';
 
 export const EXTENSION_NAME = 'snippets-view';

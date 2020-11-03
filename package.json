@@ -6,7 +6,7 @@
 	"publisher": "usernamehw",
 	"license": "MIT",
 	"engines": {
-		"vscode": "^1.40.0"
+		"vscode": "^1.50.0"
 	},
 	"repository": {
 		"type": "git",
@@ -212,18 +212,18 @@
 	},
 	"devDependencies": {
 		"@types/json5": "0.0.30",
-		"@types/node": "^10.17.35",
-		"@types/vscode": "^1.40.0",
-		"@typescript-eslint/eslint-plugin": "^4.2.0",
-		"@typescript-eslint/parser": "^4.2.0",
-		"eslint": "^7.9.0",
+		"@types/node": "^12.19.3",
+		"@types/vscode": "^1.50.0",
+		"@typescript-eslint/eslint-plugin": "^4.6.1",
+		"@typescript-eslint/parser": "^4.6.1",
+		"eslint": "^7.12.1",
 		"eslint-plugin-no-autofix": "^1.0.1",
 		"friendly-errors-webpack-plugin": "^1.7.0",
-		"ts-loader": "^8.0.4",
-		"typescript": "^4.0.3",
+		"ts-loader": "^8.0.7",
+		"typescript": "^4.0.5",
 		"webpack": "^4.44.2",
 		"webpack-cli": "^3.3.12",
-		"webpack-strip-block": "^0.2.0"
+		"webpack-strip-block": "^0.3.0"
 	},
 	"dependencies": {
 		"json5": "^2.1.3"
