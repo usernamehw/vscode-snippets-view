@@ -27,15 +27,18 @@
 		}],
 		"@typescript-eslint/await-thenable": 0,
 		"@typescript-eslint/ban-ts-ignore": 0,
+		"@typescript-eslint/explicit-module-boundary-types": 0,
 		"@typescript-eslint/ban-types": 1,
+		"@typescript-eslint/ban-ts-comment": 0,
 		"@typescript-eslint/consistent-type-definitions": [1, "interface"],
-		"@typescript-eslint/explicit-function-return-type": 1,
+		"@typescript-eslint/explicit-function-return-type": 0,
 		"@typescript-eslint/explicit-member-accessibility": 0,
 		"@typescript-eslint/func-call-spacing": 1,
 		"@typescript-eslint/generic-type-naming": 0,
 		"@typescript-eslint/indent": [1, "tab", {
 			"SwitchCase": 1
 		}],
+		"@typescript-eslint/interface-name-prefix": [0, "always"],
 		"@typescript-eslint/member-delimiter-style": [1, {
 			"multiline": {
 				"delimiter": "semi",
@@ -79,7 +82,7 @@
 		"@typescript-eslint/prefer-includes": 1,
 		"@typescript-eslint/prefer-readonly": 1,
 		"@typescript-eslint/prefer-regexp-exec": 1,
-		"@typescript-eslint/prefer-string-starts-ends-with": 1,
+		"@typescript-eslint/prefer-string-starts-ends-with": 0,
 		"@typescript-eslint/promise-function-async": 1,
 		"@typescript-eslint/require-array-sort-compare": 1,
 		"@typescript-eslint/require-await": 1,
@@ -94,12 +97,14 @@
 
 		"valid-jsdoc": 0,
 		"camelcase": 1,
-		"comma-dangle": [1, {
+		"comma-dangle": 0,
+		"@typescript-eslint/comma-dangle": [1, {
 			"arrays": "always-multiline",
 			"objects": "always-multiline",
 			"imports": "always-multiline",
 			"exports": "never",
-			"functions": "never"
+			"functions": "always-multiline",
+			"enums": "always"
 		}],
 		"no-alert": 0,
 		"curly": 0,
@@ -122,7 +127,7 @@
 		"spaced-comment": [1, "always", { "exceptions": ["/"] }],
 		"no-sparse-arrays": 1,
 		"no-unexpected-multiline": 1,
-		"no-unreachable": 1,
+		"no-unreachable": 0,
 		"use-isnan": 1,
 		"valid-typeof": [1, { "requireStringLiterals": true }],
 		"array-callback-return": 1,
@@ -168,7 +173,7 @@
 		"no-sequences": 1,
 		"no-throw-literal": 1,
 		"no-unmodified-loop-condition": 1,
-		"no-unused-expressions": 1,
+		"no-unused-expressions": 0,
 		"no-unused-labels": 1,
 		"no-useless-call": 1,
 		"no-useless-concat": 1,
@@ -179,7 +184,8 @@
 		"wrap-iife": 1,
 		"yoda": 1,
 		"no-label-var": 1,
-		"no-shadow": 1,
+		"no-shadow": 0,
+		"@typescript-eslint/no-shadow": 1,
 		"newline-before-return": 0,
 		"newline-after-var": 0,
 		"array-bracket-spacing": [
@@ -295,7 +301,8 @@
 		"no-useless-computed-key": 1,
 		"no-useless-constructor": 0,
 		"no-dupe-class-members": 1,
-		"no-duplicate-imports": 1,
+		"no-duplicate-imports": 0,
+		"@typescript-eslint/no-duplicate-imports": ["warn"],
 		"no-iterator": 1,
 
 		"prefer-numeric-literals": 1,
