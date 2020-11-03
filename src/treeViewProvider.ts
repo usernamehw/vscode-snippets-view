@@ -16,7 +16,7 @@ export class Snippet extends vscode.TreeItem {
 		readonly scope: string[],
 		readonly command: vscode.Command,
 		readonly snippetFile: SnippetFile,
-		readonly config: IConfig
+		readonly config: IConfig,
 	) {
 		super(label);
 
@@ -31,10 +31,10 @@ export class Snippet extends vscode.TreeItem {
 	// @ts-expect-error idk
 	get description() {
 		if (this.snippetFile.isJSON && !this.config.flatten) {
-			return;
+			return undefined;
 		}
 		if (!this.config.showScope) {
-			return;
+			return undefined;
 		}
 		return this.scope.join(',');
 	}
@@ -49,7 +49,7 @@ export class SnippetFile extends vscode.TreeItem {
 		readonly isJSON: boolean,
 		readonly fromExtension?: {
 			language: string;
-		}
+		},
 	) {
 		super(label);
 
@@ -71,7 +71,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 
 	constructor(
 		private readonly snippetsDirPath: string,
-		private config: IConfig
+		private config: IConfig,
 	) { }
 
 	refresh(disposeCache: boolean): void {
@@ -108,7 +108,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 		}
 	}
 
-	private getSnippetFilesFromDirectory(absoluteDirPath: string, fileExtensions: SnippetFileExtensions[]): Promise<SnippetFile[]> {
+	private async getSnippetFilesFromDirectory(absoluteDirPath: string, fileExtensions: SnippetFileExtensions[]): Promise<SnippetFile[]> {
 		return new Promise((resolve, reject) => {
 			fs.readdir(absoluteDirPath, (err, files) => {
 				if (err) {
@@ -134,7 +134,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 		});
 	}
 
-	private getAllSnippetFiles(): Promise<SnippetFile[]> {
+	private async getAllSnippetFiles(): Promise<SnippetFile[]> {
 		if (SnippetProvider.sessionCache.allSnippetFiles.length) {
 			/* develblock:start */
 			log('✅ :: Take all snippet files from cache');
@@ -171,7 +171,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 	}
 
 	private async getAllSnippetFilesContents(snippetFiles: SnippetFile[]): Promise<Snippet[]> {
-		const snippets = await Promise.all(snippetFiles.map(file => this.getSnippetFileContents(file)));
+		const snippets = await Promise.all(snippetFiles.map(async file => this.getSnippetFileContents(file)));
 
 		return Array.prototype.concat.apply([], snippets);
 	}
@@ -208,7 +208,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 		return extensionSnippets;
 	}
 
-	private getSnippetFileContents(snippetFile: SnippetFile): Promise<Snippet[]> {
+	private async getSnippetFileContents(snippetFile: SnippetFile): Promise<Snippet[]> {
 		const language: string = snippetFile.fromExtension && snippetFile.fromExtension.language || '';
 		const sessionCacheKey = snippetFile.absolutePath + language;
 
@@ -236,7 +236,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 				let parsedSnippets: ISnippetFile;
 				try {
 					parsedSnippets = JSON5.parse(contents);// tslint:disable-line
-				} catch (err) {
+				} catch {
 					/* develblock:start */
 					log(`❌ :: JSON parsing of snippet file ${snippetFile.absolutePath} failed`);
 					/* develblock:end */
@@ -263,7 +263,7 @@ export class SnippetProvider implements vscode.TreeDataProvider<Snippet | Snippe
 							arguments: [parsed.body],
 						},
 						snippetFile,
-						this.config
+						this.config,
 					));
 				}
 
