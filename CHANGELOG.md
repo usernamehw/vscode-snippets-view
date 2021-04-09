@@ -1,3 +1,7 @@
+## 0.2.9 `09 Apr 2021`
+
+- 💥 DEPRECATED in favor of [Snippets Viewer](https://marketplace.visualstudio.com/items?itemName=RandomFractalsInc.snippets-viewer)
+
 ## 0.2.8 `06 Oct 2020`
 
 - ✨ Add option to have Tree View collapsed by default
